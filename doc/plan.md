@@ -82,9 +82,12 @@
 git add ./src
 git add ./built
 git add ./doc
+git add ./public
 git add ./package.json
 git add ./tsconfig.json
 git status
+git commit -m "서버 API 작성"
+git push origin master
 ```
 
 ## 참조

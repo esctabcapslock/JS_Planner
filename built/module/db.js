@@ -51,7 +51,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.imagedb = exports.taskdb = void 0;
+exports.imagedb = exports.taskdb = exports.interfaceOfMemo = exports.interfaceOfProcess = exports.interfaceOfTask = void 0;
 var fs = require("fs");
 var sqlite3 = require("sqlite3");
 function isInt(value) {
@@ -67,27 +67,108 @@ function isInt(value) {
 function toSQLobj(obj, deleteid) {
     var new_obj = {};
     for (var i in obj)
-        if (!deleteid || deleteid.includes(i)) {
+        if (!deleteid || !deleteid.includes(i)) {
             new_obj['$' + i] = Array.isArray(obj[i]) ? obj[i].join(',') : obj[i];
         }
     console.log(new_obj);
     return new_obj;
 }
-/// /*<reference path="../typings/index.d.ts"/> */
-// const taskdb = new sqlite3.Database('../db/task.sqlite')
-// const imagedb = new sqlite3.Database('../db/imagedb.sqlite')
-//https://joshua1988.github.io/ts/guide/classes.html#readonly
-// const dblist: string[] = ['task.db', 'image.db']
-// const db_exist = ():boolean => {
-//     if(!fs.existsSync('../db')) fs.mkdirSync('../db');
-//     const flag:boolean =  dblist.every(v=>fs.existsSync('../db/'+v))
-//     if(flag) return true;
-//     // try{create_db(); return true;}
-//     // catch(err){
-//     //     console.error('[db.ts, db_exist] err',err);
-//     //     return false;
-//     // }
-// }
+function interfaceOfTask(obj) {
+    for (var key in obj) {
+        //console.log('[key],',key, typeof key, ['id', 'name','type'].includes(key))
+        //console.log(typeof obj[key] != 'number',obj[key]!=null )
+        if (!(['id', 'name', 'type'].includes(key)))
+            return false;
+        switch (key) {
+            case 'id':
+                if (typeof obj[key] != 'number' && obj[key] != null)
+                    return false;
+                break;
+            case 'name':
+                if (typeof obj[key] != 'string')
+                    return false;
+                break;
+            case 'type':
+                if (typeof obj[key] != 'number' && obj[key] != null)
+                    return false;
+                break;
+        }
+    }
+    return true;
+}
+exports.interfaceOfTask = interfaceOfTask;
+function interfaceOfProcess(obj) {
+    for (var key in obj) {
+        if (!(['id', 'name', 'startdate', 'enddate', 'starttime', 'endtime', 'taskid', 'memoid', 'ended'].includes(key)))
+            return false;
+        switch (key) {
+            case 'id':
+                if (typeof obj[key] != 'number' && obj[key] != null)
+                    return false;
+                break;
+            case 'name':
+                if (typeof obj[key] != 'string')
+                    return false;
+                break;
+            case 'startdate':
+                if (typeof obj[key] != 'number')
+                    return false;
+                break;
+            case 'enddate':
+                if (typeof obj[key] != 'number' && obj[key] != null)
+                    return false;
+                break;
+            case 'starttime':
+                if (typeof obj[key] != 'number' && obj[key] != null)
+                    return false;
+                break;
+            case 'endtime':
+                if (typeof obj[key] != 'number' && obj[key] != null)
+                    return false;
+                break;
+            case 'taskid':
+                if (typeof obj[key] != 'number')
+                    return false;
+                break;
+            case 'memoid':
+                if (!Array.isArray(obj[key]))
+                    return false;
+                break;
+            case 'ended':
+                if (typeof obj[key] != 'number')
+                    return false;
+                break;
+        }
+    }
+    return true;
+}
+exports.interfaceOfProcess = interfaceOfProcess;
+function interfaceOfMemo(obj) {
+    for (var key in obj) {
+        if (!(['id', 'taskid', 'processid', 'type'].includes(key)))
+            return false;
+        switch (key) {
+            case 'id':
+                if (typeof obj[key] != 'number' && obj[key] != null)
+                    return false;
+                break;
+            case 'taskid':
+                if (typeof obj[key] != 'number')
+                    return false;
+                break;
+            case 'processid':
+                if (typeof obj[key] != 'number' && obj[key] != null)
+                    return false;
+                break;
+            case 'name':
+                if (typeof obj[key] != 'string')
+                    return false;
+                break;
+        }
+    }
+    return true;
+}
+exports.interfaceOfMemo = interfaceOfMemo;
 var myDB = /** @class */ (function () {
     function myDB(_filename) {
         this.dbdirpath = __dirname + "\\..\\..\\db"; //db가 저장된 파일위치
@@ -174,7 +255,8 @@ var TaskDB = /** @class */ (function (_super) {
                 starttime DATETIME,\
                 endtime DATETIME,\
                 taskid integer NOT NULL,\
-                memoid TEXT\
+                memoid TEXT,\
+                ended integer NOT NULL\
                 );");
                                     this_db.run("CREATE TABLE memo (\
                 id integer primary key autoincrement,\
@@ -199,6 +281,8 @@ var TaskDB = /** @class */ (function (_super) {
                     case 1:
                         if (!(_a.sent()))
                             throw ("fn add_task DB not exist");
+                        if (!interfaceOfTask(task))
+                            throw ("fn add_task 인터페이스 불일치");
                         this_db = this.db;
                         return [2 /*return*/, new Promise(function (resolve, reject) {
                                 var _this = this;
@@ -206,7 +290,7 @@ var TaskDB = /** @class */ (function (_super) {
                                 this_db.all(sql_quary, toSQLobj(task, ['id']), function (err) { return __awaiter(_this, void 0, void 0, function () {
                                     return __generator(this, function (_a) {
                                         if (err)
-                                            reject({ name: 'fn add_task SQL err', err: err });
+                                            reject({ name: 'fn add_task SQL err', err: err, task: task });
                                         else
                                             resolve();
                                         return [2 /*return*/];
@@ -226,6 +310,8 @@ var TaskDB = /** @class */ (function (_super) {
                     case 1:
                         if (!(_a.sent()))
                             throw ("fn edit_task DB not exist");
+                        if (!interfaceOfTask(task))
+                            throw ("fn edit_task 인터페이스 불일치");
                         if (!isInt(task.id) || task.id < 0)
                             throw ("fn edit_task task.id 정수 아님");
                         this_db = this.db;
@@ -334,14 +420,16 @@ var TaskDB = /** @class */ (function (_super) {
                     case 1:
                         if (!(_a.sent()))
                             throw ("fn add_process DB not exist");
+                        if (!interfaceOfProcess(process))
+                            throw ("fn add_process 인터페이스 불일치");
                         this_db = this.db;
                         return [2 /*return*/, new Promise(function (resolve, reject) {
                                 var _this = this;
-                                var sql_quary = "INSERT INTO process (name, startdate,enddate,starttime,endtime,taskid,memoid) VALUES ($name, $startdate,$enddate,$starttime,$endtime,$taskid,$memoid);";
+                                var sql_quary = "INSERT INTO process (name, startdate,enddate,starttime,endtime,taskid,memoid,ended) VALUES ($name, $startdate,$enddate,$starttime,$endtime,$taskid,$memoid,$ended);";
                                 this_db.all(sql_quary, toSQLobj(process, ['id']), function (err) { return __awaiter(_this, void 0, void 0, function () {
                                     return __generator(this, function (_a) {
                                         if (err)
-                                            reject({ name: 'fn add_process SQL err', err: err });
+                                            reject({ name: 'fn add_process SQL err', err: err, process: toSQLobj(process, ['id']) });
                                         else
                                             resolve();
                                         return [2 /*return*/];
@@ -361,6 +449,8 @@ var TaskDB = /** @class */ (function (_super) {
                     case 1:
                         if (!(_a.sent()))
                             throw ("fn edit_process DB not exist");
+                        if (!interfaceOfProcess(process))
+                            throw ("fn edit_process 인터페이스 불일치");
                         if (!isInt(process.id) || process.id < 0)
                             throw ("fn edit_process process.id 정수 아님");
                         this_db = this.db;
@@ -476,6 +566,8 @@ var TaskDB = /** @class */ (function (_super) {
                     case 1:
                         if (!(_a.sent()))
                             throw ("fn add_memo DB not exist");
+                        if (!interfaceOfMemo(memo))
+                            throw ("fn add_memo 인터페이스 불일치");
                         this_db = this.db;
                         return [2 /*return*/, new Promise(function (resolve, reject) {
                                 var _this = this;
@@ -503,6 +595,8 @@ var TaskDB = /** @class */ (function (_super) {
                     case 1:
                         if (!(_a.sent()))
                             throw ("fn edit_memo DB not exist");
+                        if (!interfaceOfMemo(memo))
+                            throw ("fn edit_memo 인터페이스 불일치");
                         if (!isInt(memo.id) || memo.id < 0)
                             throw ("fn edit_memo memo.id 정수 아님");
                         this_db = this.db;
@@ -564,7 +658,7 @@ var TaskDB = /** @class */ (function (_super) {
             });
         });
     };
-    TaskDB.prototype.get_memo = function () {
+    TaskDB.prototype.get_memo = function (memoid) {
         return __awaiter(this, void 0, void 0, function () {
             var this_db;
             return __generator(this, function (_a) {
@@ -573,11 +667,13 @@ var TaskDB = /** @class */ (function (_super) {
                     case 1:
                         if (!(_a.sent()))
                             throw ("fn get_memo DB not exist");
+                        if (!isInt(memoid) || memoid < 0)
+                            throw ("fn get_memo memoid 정수 아님");
                         this_db = this.db;
                         return [2 /*return*/, new Promise(function (resolve, reject) {
                                 var _this = this;
-                                var sql_quary = "SELECT * FROM memo;";
-                                this_db.all(sql_quary, function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+                                var sql_quary = "SELECT * FROM memo where id=$id;";
+                                this_db.all(sql_quary, { $id: memoid }, function (err, data) { return __awaiter(_this, void 0, void 0, function () {
                                     return __generator(this, function (_a) {
                                         if (err)
                                             reject({ name: 'fn get_memo SQL err', err: err });

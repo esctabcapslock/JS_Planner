@@ -11,20 +11,34 @@ function isInt(value:any):boolean {
 //SQL에 넣기 위해, 객체 앞에 $들을 붙인다.
 function toSQLobj(obj:object, deleteid:string[]|undefined):object{
     const new_obj:object = {};
-    for (const i in obj) if(!deleteid || deleteid.includes(i)){
+    for (const i in obj) if(!deleteid || !deleteid.includes(i)){
         new_obj['$'+i] = Array.isArray(obj[i])?obj[i].join(','):obj[i]
     }
     console.log(new_obj)
     return new_obj
 }
 
-interface Task{
+export interface Task{
     id:number|null,
     name:string,
     type:string|null
 }
 
-interface Process{
+export function interfaceOfTask(obj:object):obj is Task {
+    for (const key in obj){
+        //console.log('[key],',key, typeof key, ['id', 'name','type'].includes(key))
+        //console.log(typeof obj[key] != 'number',obj[key]!=null )
+        if (!(['id', 'name','type'].includes(key))) return false;
+        switch(key){
+            case 'id': if(typeof obj[key] != 'number' && obj[key]!=null) return false; break;
+            case 'name': if(typeof obj[key] != 'string') return false; break;
+            case 'type': if(typeof obj[key] != 'number' && obj[key]!=null) return false; break;
+        }
+    }
+    return true
+}
+
+export interface Process{
     id:number|null,
     name:string,
     startdate:number,
@@ -33,8 +47,26 @@ interface Process{
     endtime:number|null,
     taskid:number,
     memoid:number[],
+    ended:number, //0이면 안끝남. 1이어야 끝남
 }
 
+export function interfaceOfProcess(obj:object):obj is Process {
+    for (const key in obj){
+        if (!(['id', 'name','startdate', 'enddate','starttime','endtime','taskid','memoid','ended'].includes(key))) return false;
+        switch(key){
+            case 'id': if(typeof obj[key] != 'number' && obj[key]!=null) return false; break;
+            case 'name': if(typeof obj[key] != 'string') return false; break;
+            case 'startdate': if(typeof obj[key] != 'number') return false; break;
+            case 'enddate': if(typeof obj[key] != 'number' && obj[key]!=null) return false; break;
+            case 'starttime': if(typeof obj[key] != 'number' && obj[key]!=null) return false; break;
+            case 'endtime': if(typeof obj[key] != 'number' && obj[key]!=null) return false; break;
+            case 'taskid': if(typeof obj[key] != 'number') return false; break;
+            case 'memoid': if( !Array.isArray(obj[key])) return false; break;
+            case 'ended': if(typeof obj[key] != 'number') return false; break;
+        }
+    }
+    return true
+}
 interface Memo{
     id:number|null,
     taskid:number,
@@ -42,23 +74,18 @@ interface Memo{
     type:string|null,
 }
 
-/// /*<reference path="../typings/index.d.ts"/> */
-  
-// const taskdb = new sqlite3.Database('../db/task.sqlite')
-// const imagedb = new sqlite3.Database('../db/imagedb.sqlite')
-//https://joshua1988.github.io/ts/guide/classes.html#readonly
-
-// const dblist: string[] = ['task.db', 'image.db']
-// const db_exist = ():boolean => {
-//     if(!fs.existsSync('../db')) fs.mkdirSync('../db');
-//     const flag:boolean =  dblist.every(v=>fs.existsSync('../db/'+v))
-//     if(flag) return true;
-//     // try{create_db(); return true;}
-//     // catch(err){
-//     //     console.error('[db.ts, db_exist] err',err);
-//     //     return false;
-//     // }
-// }
+export function interfaceOfMemo(obj:object):obj is Memo {
+    for (const key in obj){
+        if (!(['id', 'taskid','processid', 'type'].includes(key))) return false;
+        switch(key){
+            case 'id': if(typeof obj[key] != 'number' && obj[key]!=null) return false; break;
+            case 'taskid': if(typeof obj[key] != 'number') return false; break;
+            case 'processid': if(typeof obj[key] != 'number' && obj[key]!=null) return false; break;
+            case 'name': if(typeof obj[key] != 'string') return false; break;
+        }
+    }
+    return true
+}
 
 abstract class myDB{
     db:sqlite3.Database
@@ -112,7 +139,8 @@ class TaskDB extends myDB{
                 starttime DATETIME,\
                 endtime DATETIME,\
                 taskid integer NOT NULL,\
-                memoid TEXT\
+                memoid TEXT,\
+                ended integer NOT NULL\
                 );")
             this_db.run("CREATE TABLE memo (\
                 id integer primary key autoincrement,\
@@ -127,17 +155,19 @@ class TaskDB extends myDB{
     //과업을 추가
     async add_task(task:Task): Promise<void> {
         if(!await this.exist()) throw("fn add_task DB not exist");
+        if(!interfaceOfTask(task)) throw("fn add_task 인터페이스 불일치");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
             const sql_quary = `INSERT INTO task (name, type) VALUES ($name, $type);`
             this_db.all(sql_quary, toSQLobj(task,['id']), async (err)=>{
-                if(err) reject({name:'fn add_task SQL err',err:err});
+                if(err) reject({name:'fn add_task SQL err',err:err, task});
                 else resolve();
             })
         })
     }
-    async edit_task(task:Task): Promise<boolean> {
+    async edit_task(task:Task): Promise<void> {
         if(!await this.exist()) throw("fn edit_task DB not exist")
+        if(!interfaceOfTask(task)) throw("fn edit_task 인터페이스 불일치");
         if (!isInt(task.id) || task.id<0) throw("fn edit_task task.id 정수 아님");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
@@ -149,7 +179,7 @@ class TaskDB extends myDB{
         })
     }
     //과업, 그 사이에 해당된 과업도 모두 삭제
-    async del_task(taskid:number): Promise<boolean> {
+    async del_task(taskid:number): Promise<void> {
         if(!await this.exist()) throw("fn del_task DB not exist")
         if (!isInt(taskid) || taskid<0) throw("fn del_task task.id 정수 아님");
         const this_db:sqlite3.Database = this.db
@@ -186,17 +216,19 @@ class TaskDB extends myDB{
     //과정 관리
     async add_process(process:Process): Promise<void> {
         if(!await this.exist()) throw("fn add_process DB not exist");
+        if(!interfaceOfProcess(process)) throw("fn add_process 인터페이스 불일치");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
-            const sql_quary = `INSERT INTO process (name, startdate,enddate,starttime,endtime,taskid,memoid) VALUES ($name, $startdate,$enddate,$starttime,$endtime,$taskid,$memoid);`
+            const sql_quary = `INSERT INTO process (name, startdate,enddate,starttime,endtime,taskid,memoid,ended) VALUES ($name, $startdate,$enddate,$starttime,$endtime,$taskid,$memoid,$ended);`
             this_db.all(sql_quary, toSQLobj(process,['id']), async (err)=>{
-                if(err) reject({name:'fn add_process SQL err',err:err});
+                if(err) reject({name:'fn add_process SQL err',err:err, process:toSQLobj(process,['id'])});
                 else resolve();
             })
         })
     }
-    async edit_process(process:Process): Promise<boolean> {
+    async edit_process(process:Process): Promise<void> {
         if(!await this.exist()) throw("fn edit_process DB not exist")
+        if(!interfaceOfProcess(process)) throw("fn edit_process 인터페이스 불일치");
         if (!isInt(process.id) || process.id<0) throw("fn edit_process process.id 정수 아님");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
@@ -207,7 +239,7 @@ class TaskDB extends myDB{
             })
         })
     }
-    async del_process(processid:number): Promise<boolean> {
+    async del_process(processid:number): Promise<void> {
         if(!await this.exist()) throw("fn del_process DB not exist")
         if (!isInt(processid) || processid<0) throw("fn del_process processid 정수 아님");
         const this_db:sqlite3.Database = this.db
@@ -246,6 +278,7 @@ class TaskDB extends myDB{
     //메모 관리
     async add_memo(memo:Memo): Promise<void> {
         if(!await this.exist()) throw("fn add_memo DB not exist");
+        if(!interfaceOfMemo(memo)) throw("fn add_memo 인터페이스 불일치");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
             const sql_quary = `INSERT INTO memo (taskid, processid,type) VALUES ($taskid, $processid,t$ype);`
@@ -255,8 +288,9 @@ class TaskDB extends myDB{
             })
         })
     }
-    async edit_memo(memo:Memo): Promise<boolean> {
+    async edit_memo(memo:Memo): Promise<void> {
         if(!await this.exist()) throw("fn edit_memo DB not exist")
+        if(!interfaceOfMemo(memo)) throw("fn edit_memo 인터페이스 불일치");
         if (!isInt(memo.id) || memo.id<0) throw("fn edit_memo memo.id 정수 아님");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
@@ -267,7 +301,7 @@ class TaskDB extends myDB{
             })
         })
     }
-    async del_memo(memoid:number): Promise<boolean> {
+    async del_memo(memoid:number): Promise<void> {
         if(!await this.exist()) throw("fn del_memo DB not exist")
         if (!isInt(memoid) || memoid<0) throw("fn del_memo memo.id 정수 아님");
         const this_db:sqlite3.Database = this.db
@@ -279,12 +313,13 @@ class TaskDB extends myDB{
             })
         })
     }
-    async get_memo(): Promise<Memo[]> {
+    async get_memo(memoid:Number): Promise<Memo[]> {
         if(!await this.exist()) throw("fn get_memo DB not exist")
+        if (!isInt(memoid) || memoid<0) throw("fn get_memo memoid 정수 아님");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
-            const sql_quary = `SELECT * FROM memo;`
-            this_db.all(sql_quary, async (err, data:Memo[])=>{
+            const sql_quary = `SELECT * FROM memo where id=$id;`
+            this_db.all(sql_quary, {$id:memoid}, async (err, data:Memo[])=>{
                 if(err) reject({name:'fn get_memo SQL err',err:err});
                 else  resolve(data);
             })
