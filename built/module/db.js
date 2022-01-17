@@ -63,6 +63,16 @@ function isInt(value) {
         return false;
     return parseInt('' + value, 10) == value;
 }
+//SQL에 넣기 위해, 객체 앞에 $들을 붙인다.
+function toSQLobj(obj, deleteid) {
+    var new_obj = {};
+    for (var i in obj)
+        if (!deleteid || deleteid.includes(i)) {
+            new_obj['$' + i] = Array.isArray(obj[i]) ? obj[i].join(',') : obj[i];
+        }
+    console.log(new_obj);
+    return new_obj;
+}
 /// /*<reference path="../typings/index.d.ts"/> */
 // const taskdb = new sqlite3.Database('../db/task.sqlite')
 // const imagedb = new sqlite3.Database('../db/imagedb.sqlite')
@@ -158,6 +168,7 @@ var TaskDB = /** @class */ (function (_super) {
                 );");
                                     this_db.run("CREATE TABLE process (\
                 id integer primary key autoincrement,\
+                name TEXT NOT NULL,\
                 startdate DATETIME NOT NULL,\
                 enddate DATETIME,\
                 starttime DATETIME,\
@@ -187,19 +198,17 @@ var TaskDB = /** @class */ (function (_super) {
                     case 0: return [4 /*yield*/, this.exist()];
                     case 1:
                         if (!(_a.sent()))
-                            throw ("fn add_task 데이터베이스 없음 오류");
+                            throw ("fn add_task DB not exist");
                         this_db = this.db;
                         return [2 /*return*/, new Promise(function (resolve, reject) {
                                 var _this = this;
                                 var sql_quary = "INSERT INTO task (name, type) VALUES ($name, $type);";
-                                this_db.run(sql_quary, { $name: task.name, $type: task.type }, function (err, ids, changes) { return __awaiter(_this, void 0, void 0, function () {
+                                this_db.all(sql_quary, toSQLobj(task, ['id']), function (err) { return __awaiter(_this, void 0, void 0, function () {
                                     return __generator(this, function (_a) {
                                         if (err)
                                             reject({ name: 'fn add_task SQL err', err: err });
-                                        else {
-                                            console.log('fn add_task data', this, ids, changes);
+                                        else
                                             resolve();
-                                        }
                                         return [2 /*return*/];
                                     });
                                 }); });
@@ -216,14 +225,291 @@ var TaskDB = /** @class */ (function (_super) {
                     case 0: return [4 /*yield*/, this.exist()];
                     case 1:
                         if (!(_a.sent()))
-                            throw ("fn edit_task 데이터베이스 없음 오류");
+                            throw ("fn edit_task DB not exist");
                         if (!isInt(task.id) || task.id < 0)
                             throw ("fn edit_task task.id 정수 아님");
                         this_db = this.db;
                         return [2 /*return*/, new Promise(function (resolve, reject) {
                                 var _this = this;
                                 var sql_quary = "UPDATE task SET name=$name, type=$type WHERE id=$id;";
-                                this_db.run(sql_quary, { $id: task.id, $name: task.name, $type: task.type }, function (err) {
+                                this_db.all(sql_quary, toSQLobj(task, []), function (err) { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        if (err)
+                                            reject({ name: 'fn edit_task SQL err', err: err });
+                                        else
+                                            resolve();
+                                        return [2 /*return*/];
+                                    });
+                                }); });
+                            })];
+                }
+            });
+        });
+    };
+    //과업, 그 사이에 해당된 과업도 모두 삭제
+    TaskDB.prototype.del_task = function (taskid) {
+        return __awaiter(this, void 0, void 0, function () {
+            var this_db;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exist()];
+                    case 1:
+                        if (!(_a.sent()))
+                            throw ("fn del_task DB not exist");
+                        if (!isInt(taskid) || taskid < 0)
+                            throw ("fn del_task task.id 정수 아님");
+                        this_db = this.db;
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var _this = this;
+                                try {
+                                    var sql_quary = "DELETE FROM task WHERE id=$id;";
+                                    this_db.run(sql_quary, { $id: taskid }, function (err) { return __awaiter(_this, void 0, void 0, function () {
+                                        return __generator(this, function (_a) {
+                                            if (err)
+                                                reject({ name: 'fn del_task SQL err task삭제', err: err });
+                                            else
+                                                resolve();
+                                            return [2 /*return*/];
+                                        });
+                                    }); });
+                                    var sql_quary2 = "DELETE FROM process WHERE taskid=$id;";
+                                    this_db.run(sql_quary2, { $taskid: taskid }, function (err) {
+                                        var data = [];
+                                        for (var _i = 1; _i < arguments.length; _i++) {
+                                            data[_i - 1] = arguments[_i];
+                                        }
+                                        return __awaiter(_this, void 0, void 0, function () {
+                                            return __generator(this, function (_a) {
+                                                if (err)
+                                                    reject({ name: 'fn del_task SQL err process삭제', err: err });
+                                                else
+                                                    resolve();
+                                                return [2 /*return*/];
+                                            });
+                                        });
+                                    });
+                                }
+                                catch (err) {
+                                    reject({ name: "fn del_task", err: err });
+                                }
+                            })];
+                }
+            });
+        });
+    };
+    TaskDB.prototype.get_tasklist = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var this_db;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exist()];
+                    case 1:
+                        if (!(_a.sent()))
+                            throw ("fn del_task DB not exist");
+                        this_db = this.db;
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var _this = this;
+                                var sql_quary = "SELECT * FROM task;";
+                                this_db.all(sql_quary, function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        if (err)
+                                            reject({ name: 'fn get_task_list SQL err', err: err });
+                                        else
+                                            resolve(data);
+                                        return [2 /*return*/];
+                                    });
+                                }); });
+                            })];
+                }
+            });
+        });
+    };
+    //과정 관리
+    TaskDB.prototype.add_process = function (process) {
+        return __awaiter(this, void 0, void 0, function () {
+            var this_db;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exist()];
+                    case 1:
+                        if (!(_a.sent()))
+                            throw ("fn add_process DB not exist");
+                        this_db = this.db;
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var _this = this;
+                                var sql_quary = "INSERT INTO process (name, startdate,enddate,starttime,endtime,taskid,memoid) VALUES ($name, $startdate,$enddate,$starttime,$endtime,$taskid,$memoid);";
+                                this_db.all(sql_quary, toSQLobj(process, ['id']), function (err) { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        if (err)
+                                            reject({ name: 'fn add_process SQL err', err: err });
+                                        else
+                                            resolve();
+                                        return [2 /*return*/];
+                                    });
+                                }); });
+                            })];
+                }
+            });
+        });
+    };
+    TaskDB.prototype.edit_process = function (process) {
+        return __awaiter(this, void 0, void 0, function () {
+            var this_db;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exist()];
+                    case 1:
+                        if (!(_a.sent()))
+                            throw ("fn edit_process DB not exist");
+                        if (!isInt(process.id) || process.id < 0)
+                            throw ("fn edit_process process.id 정수 아님");
+                        this_db = this.db;
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var _this = this;
+                                var sql_quary = "UPDATE process SET name=$name, startdate=$startdate,enddate=$enddate,starttime,endtime=$starttime,taskid=$taskid,memoid=$memoid WHERE id=$id;";
+                                this_db.all(sql_quary, toSQLobj(process, []), function (err) { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        if (err)
+                                            reject({ name: 'fn edit_process SQL err', err: err });
+                                        else
+                                            resolve();
+                                        return [2 /*return*/];
+                                    });
+                                }); });
+                            })];
+                }
+            });
+        });
+    };
+    TaskDB.prototype.del_process = function (processid) {
+        return __awaiter(this, void 0, void 0, function () {
+            var this_db;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exist()];
+                    case 1:
+                        if (!(_a.sent()))
+                            throw ("fn del_process DB not exist");
+                        if (!isInt(processid) || processid < 0)
+                            throw ("fn del_process processid 정수 아님");
+                        this_db = this.db;
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var _this = this;
+                                var sql_quary = "DELETE FROM process WHERE id=$id;";
+                                this_db.all(sql_quary, { $id: processid }, function (err) { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        if (err)
+                                            reject({ name: 'fn del_process SQL err', err: err });
+                                        else
+                                            resolve();
+                                        return [2 /*return*/];
+                                    });
+                                }); });
+                            })];
+                }
+            });
+        });
+    };
+    TaskDB.prototype.get_processlist_all = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var this_db;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exist()];
+                    case 1:
+                        if (!(_a.sent()))
+                            throw ("fn get_processlist_all DB not exist");
+                        this_db = this.db;
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var _this = this;
+                                var sql_quary = "SELECT * FROM process;";
+                                this_db.all(sql_quary, function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        if (err)
+                                            reject({ name: 'fn get_processlist_all SQL err', err: err });
+                                        else
+                                            resolve(data);
+                                        return [2 /*return*/];
+                                    });
+                                }); });
+                            })];
+                }
+            });
+        });
+    };
+    TaskDB.prototype.get_processlist_bytaskid = function (taskid) {
+        return __awaiter(this, void 0, void 0, function () {
+            var this_db;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exist()];
+                    case 1:
+                        if (!(_a.sent()))
+                            throw ("fn get_processlist_bytaskid DB not exist");
+                        if (!isInt(taskid) || taskid < 0)
+                            throw ("fn get_processlist_bytaskid taskid 정수 아님");
+                        this_db = this.db;
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var _this = this;
+                                var sql_quary = "SELECT * FROM process WHERE taskid=$taskid;";
+                                this_db.all(sql_quary, { $id: taskid }, function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        if (err)
+                                            reject({ name: 'fn get_processlist_bytaskid SQL err', err: err });
+                                        else
+                                            resolve(data);
+                                        return [2 /*return*/];
+                                    });
+                                }); });
+                            })];
+                }
+            });
+        });
+    };
+    //메모 관리
+    TaskDB.prototype.add_memo = function (memo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var this_db;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exist()];
+                    case 1:
+                        if (!(_a.sent()))
+                            throw ("fn add_memo DB not exist");
+                        this_db = this.db;
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var _this = this;
+                                var sql_quary = "INSERT INTO memo (taskid, processid,type) VALUES ($taskid, $processid,t$ype);";
+                                this_db.all(sql_quary, toSQLobj(process, ['id']), function (err) { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        if (err)
+                                            reject({ name: 'fn add_memo SQL err', err: err });
+                                        else
+                                            resolve();
+                                        return [2 /*return*/];
+                                    });
+                                }); });
+                            })];
+                }
+            });
+        });
+    };
+    TaskDB.prototype.edit_memo = function (memo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var this_db;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exist()];
+                    case 1:
+                        if (!(_a.sent()))
+                            throw ("fn edit_memo DB not exist");
+                        if (!isInt(memo.id) || memo.id < 0)
+                            throw ("fn edit_memo memo.id 정수 아님");
+                        this_db = this.db;
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var _this = this;
+                                var sql_quary = "UPDATE memo SET name=$name, startdate=$startdate,enddate=$enddate,starttime,endtime=$starttime,taskid=$taskid,memoid=$memoid WHERE id=$id;";
+                                this_db.all(sql_quary, toSQLobj(process, []), function (err) {
                                     var data = [];
                                     for (var _i = 1; _i < arguments.length; _i++) {
                                         data[_i - 1] = arguments[_i];
@@ -231,11 +517,9 @@ var TaskDB = /** @class */ (function (_super) {
                                     return __awaiter(_this, void 0, void 0, function () {
                                         return __generator(this, function (_a) {
                                             if (err)
-                                                reject({ name: 'fn edit_task SQL err', err: err });
-                                            else {
-                                                console.log('fn edit_task data', data, this);
+                                                reject({ name: 'fn edit_memo SQL err', err: err });
+                                            else
                                                 resolve();
-                                            }
                                             return [2 /*return*/];
                                         });
                                     });
@@ -245,7 +529,7 @@ var TaskDB = /** @class */ (function (_super) {
             });
         });
     };
-    TaskDB.prototype.del_task = function (taskid) {
+    TaskDB.prototype.del_memo = function (memoid) {
         return __awaiter(this, void 0, void 0, function () {
             var this_db;
             return __generator(this, function (_a) {
@@ -253,14 +537,14 @@ var TaskDB = /** @class */ (function (_super) {
                     case 0: return [4 /*yield*/, this.exist()];
                     case 1:
                         if (!(_a.sent()))
-                            throw ("fn del_task 데이터베이스 없음 오류");
-                        if (!isInt(taskid) || taskid < 0)
-                            throw ("fn del_task task.id 정수 아님");
+                            throw ("fn del_memo DB not exist");
+                        if (!isInt(memoid) || memoid < 0)
+                            throw ("fn del_memo memo.id 정수 아님");
                         this_db = this.db;
                         return [2 /*return*/, new Promise(function (resolve, reject) {
                                 var _this = this;
-                                var sql_quary = "DELETE FROM task WHERE id=$id;";
-                                this_db.run(sql_quary, { $id: taskid }, function (err) {
+                                var sql_quary = "DELETE FROM memo WHERE id=$id;";
+                                this_db.all(sql_quary, { $id: memoid }, function (err) {
                                     var data = [];
                                     for (var _i = 1; _i < arguments.length; _i++) {
                                         data[_i - 1] = arguments[_i];
@@ -268,15 +552,40 @@ var TaskDB = /** @class */ (function (_super) {
                                     return __awaiter(_this, void 0, void 0, function () {
                                         return __generator(this, function (_a) {
                                             if (err)
-                                                reject({ name: 'fn del_task SQL err', err: err });
-                                            else {
-                                                console.log('fn edit_task data', data, this);
+                                                reject({ name: 'fn del_memo SQL err', err: err });
+                                            else
                                                 resolve();
-                                            }
                                             return [2 /*return*/];
                                         });
                                     });
                                 });
+                            })];
+                }
+            });
+        });
+    };
+    TaskDB.prototype.get_memo = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var this_db;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exist()];
+                    case 1:
+                        if (!(_a.sent()))
+                            throw ("fn get_memo DB not exist");
+                        this_db = this.db;
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var _this = this;
+                                var sql_quary = "SELECT * FROM memo;";
+                                this_db.all(sql_quary, function (err, data) { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        if (err)
+                                            reject({ name: 'fn get_memo SQL err', err: err });
+                                        else
+                                            resolve(data);
+                                        return [2 /*return*/];
+                                    });
+                                }); });
                             })];
                 }
             });

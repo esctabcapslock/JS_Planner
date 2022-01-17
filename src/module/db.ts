@@ -8,6 +8,16 @@ function isInt(value:any):boolean {
     return parseInt(''+value,10)==value      
 }
 
+//SQL에 넣기 위해, 객체 앞에 $들을 붙인다.
+function toSQLobj(obj:object, deleteid:string[]|undefined):object{
+    const new_obj:object = {};
+    for (const i in obj) if(!deleteid || deleteid.includes(i)){
+        new_obj['$'+i] = Array.isArray(obj[i])?obj[i].join(','):obj[i]
+    }
+    console.log(new_obj)
+    return new_obj
+}
+
 interface Task{
     id:number|null,
     name:string,
@@ -16,12 +26,13 @@ interface Task{
 
 interface Process{
     id:number|null,
+    name:string,
     startdate:number,
     enddate:number|null,
     starttime:number|null,
     endtime:number|null,
     taskid:number,
-    memoid:number|null,
+    memoid:number[],
 }
 
 interface Memo{
@@ -95,6 +106,7 @@ class TaskDB extends myDB{
     
             this_db.run("CREATE TABLE process (\
                 id integer primary key autoincrement,\
+                name TEXT NOT NULL,\
                 startdate DATETIME NOT NULL,\
                 enddate DATETIME,\
                 starttime DATETIME,\
@@ -114,41 +126,170 @@ class TaskDB extends myDB{
 
     //과업을 추가
     async add_task(task:Task): Promise<void> {
-        if(!await this.exist()) throw("fn add_task 데이터베이스 없음 오류");
+        if(!await this.exist()) throw("fn add_task DB not exist");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
             const sql_quary = `INSERT INTO task (name, type) VALUES ($name, $type);`
-            this_db.run(sql_quary, {$name:task.name, $type:task.type}, async (err, ids, changes)=>{
+            this_db.all(sql_quary, toSQLobj(task,['id']), async (err)=>{
                 if(err) reject({name:'fn add_task SQL err',err:err});
-                else {console.log('fn add_task data',this, ids, changes); resolve();}
+                else resolve();
             })
         })
     }
     async edit_task(task:Task): Promise<boolean> {
-        if(!await this.exist()) throw("fn edit_task 데이터베이스 없음 오류")
+        if(!await this.exist()) throw("fn edit_task DB not exist")
         if (!isInt(task.id) || task.id<0) throw("fn edit_task task.id 정수 아님");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
             const sql_quary = `UPDATE task SET name=$name, type=$type WHERE id=$id;`
-            this_db.run(sql_quary, {$id: task.id, $name:task.name, $type:task.type}, async (err, ...data)=>{
+            this_db.all(sql_quary, toSQLobj(task,[]), async (err)=>{
                 if(err) reject({name:'fn edit_task SQL err',err:err});
-                else {console.log('fn edit_task data',data, this); resolve();}
+                else resolve();
             })
         })
     }
+    //과업, 그 사이에 해당된 과업도 모두 삭제
     async del_task(taskid:number): Promise<boolean> {
-        if(!await this.exist()) throw("fn del_task 데이터베이스 없음 오류")
+        if(!await this.exist()) throw("fn del_task DB not exist")
         if (!isInt(taskid) || taskid<0) throw("fn del_task task.id 정수 아님");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
-            const sql_quary = `DELETE FROM task WHERE id=$id;`
-            this_db.run(sql_quary, {$id:taskid}, async (err, ...data)=>{
-                if(err) reject({name:'fn del_task SQL err',err:err});
-                else {console.log('fn edit_task data',data, this); resolve();}
+            try{
+                const sql_quary = `DELETE FROM task WHERE id=$id;`
+                this_db.run(sql_quary, {$id:taskid}, async (err)=>{
+                    if(err) reject({name:'fn del_task SQL err task삭제',err:err});
+                    else resolve();
+                })
+                const sql_quary2 = `DELETE FROM process WHERE taskid=$id;`
+                this_db.run(sql_quary2, {$taskid:taskid}, async (err, ...data)=>{
+                    if(err) reject({name:'fn del_task SQL err process삭제',err:err});
+                    else resolve();
+                })
+            }catch(err){
+                reject({name:"fn del_task",err:err})   
+            }
+        })
+    }
+    async get_tasklist(): Promise<Task[]> {
+        if(!await this.exist()) throw("fn del_task DB not exist")
+        const this_db:sqlite3.Database = this.db
+        return new Promise(function (resolve:Function, reject:Function) {
+            const sql_quary = `SELECT * FROM task;`
+            this_db.all(sql_quary, async (err, data:Task[])=>{
+                if(err) reject({name:'fn get_task_list SQL err',err:err});
+                else resolve(data);
             })
         })
     }
-    // async get_task_list(): Promise<Task[]> {}
+
+
+    //과정 관리
+    async add_process(process:Process): Promise<void> {
+        if(!await this.exist()) throw("fn add_process DB not exist");
+        const this_db:sqlite3.Database = this.db
+        return new Promise(function (resolve:Function, reject:Function) {
+            const sql_quary = `INSERT INTO process (name, startdate,enddate,starttime,endtime,taskid,memoid) VALUES ($name, $startdate,$enddate,$starttime,$endtime,$taskid,$memoid);`
+            this_db.all(sql_quary, toSQLobj(process,['id']), async (err)=>{
+                if(err) reject({name:'fn add_process SQL err',err:err});
+                else resolve();
+            })
+        })
+    }
+    async edit_process(process:Process): Promise<boolean> {
+        if(!await this.exist()) throw("fn edit_process DB not exist")
+        if (!isInt(process.id) || process.id<0) throw("fn edit_process process.id 정수 아님");
+        const this_db:sqlite3.Database = this.db
+        return new Promise(function (resolve:Function, reject:Function) {
+            const sql_quary = `UPDATE process SET name=$name, startdate=$startdate,enddate=$enddate,starttime,endtime=$starttime,taskid=$taskid,memoid=$memoid WHERE id=$id;`
+            this_db.all(sql_quary, toSQLobj(process,[]), async (err)=>{
+                if(err) reject({name:'fn edit_process SQL err',err:err});
+                else resolve();
+            })
+        })
+    }
+    async del_process(processid:number): Promise<boolean> {
+        if(!await this.exist()) throw("fn del_process DB not exist")
+        if (!isInt(processid) || processid<0) throw("fn del_process processid 정수 아님");
+        const this_db:sqlite3.Database = this.db
+        return new Promise(function (resolve:Function, reject:Function) {
+            const sql_quary = `DELETE FROM process WHERE id=$id;`
+            this_db.all(sql_quary, {$id:processid}, async (err)=>{
+                if(err) reject({name:'fn del_process SQL err',err:err});
+                else resolve();
+            })
+        })
+    }
+    async get_processlist_all(): Promise<Process[]> {
+        if(!await this.exist()) throw("fn get_processlist_all DB not exist")
+        const this_db:sqlite3.Database = this.db
+        return new Promise(function (resolve:Function, reject:Function) {
+            const sql_quary = `SELECT * FROM process;`
+            this_db.all(sql_quary, async (err, data:Process[])=>{
+                if(err) reject({name:'fn get_processlist_all SQL err',err:err});
+                else  resolve(data);
+            })
+        })
+    }
+    async get_processlist_bytaskid(taskid:number): Promise<Process[]> {
+        if(!await this.exist()) throw("fn get_processlist_bytaskid DB not exist")
+        if (!isInt(taskid) || taskid<0) throw("fn get_processlist_bytaskid taskid 정수 아님");
+        const this_db:sqlite3.Database = this.db
+        return new Promise(function (resolve:Function, reject:Function) {
+            const sql_quary = `SELECT * FROM process WHERE taskid=$taskid;`
+            this_db.all(sql_quary, {$id:taskid}, async (err, data:Process[])=>{
+                if(err) reject({name:'fn get_processlist_bytaskid SQL err',err:err});
+                else resolve(data);
+            })
+        })
+    }
+    
+    //메모 관리
+    async add_memo(memo:Memo): Promise<void> {
+        if(!await this.exist()) throw("fn add_memo DB not exist");
+        const this_db:sqlite3.Database = this.db
+        return new Promise(function (resolve:Function, reject:Function) {
+            const sql_quary = `INSERT INTO memo (taskid, processid,type) VALUES ($taskid, $processid,t$ype);`
+            this_db.all(sql_quary, toSQLobj(process,['id']), async (err)=>{
+                if(err) reject({name:'fn add_memo SQL err',err:err});
+                else resolve();
+            })
+        })
+    }
+    async edit_memo(memo:Memo): Promise<boolean> {
+        if(!await this.exist()) throw("fn edit_memo DB not exist")
+        if (!isInt(memo.id) || memo.id<0) throw("fn edit_memo memo.id 정수 아님");
+        const this_db:sqlite3.Database = this.db
+        return new Promise(function (resolve:Function, reject:Function) {
+            const sql_quary = `UPDATE memo SET name=$name, startdate=$startdate,enddate=$enddate,starttime,endtime=$starttime,taskid=$taskid,memoid=$memoid WHERE id=$id;`
+            this_db.all(sql_quary, toSQLobj(process,[]), async (err, ...data)=>{
+                if(err) reject({name:'fn edit_memo SQL err',err:err});
+                else resolve();
+            })
+        })
+    }
+    async del_memo(memoid:number): Promise<boolean> {
+        if(!await this.exist()) throw("fn del_memo DB not exist")
+        if (!isInt(memoid) || memoid<0) throw("fn del_memo memo.id 정수 아님");
+        const this_db:sqlite3.Database = this.db
+        return new Promise(function (resolve:Function, reject:Function) {
+            const sql_quary = `DELETE FROM memo WHERE id=$id;`
+            this_db.all(sql_quary, {$id:memoid}, async (err, ...data)=>{
+                if(err) reject({name:'fn del_memo SQL err',err:err});
+                else resolve();
+            })
+        })
+    }
+    async get_memo(): Promise<Memo[]> {
+        if(!await this.exist()) throw("fn get_memo DB not exist")
+        const this_db:sqlite3.Database = this.db
+        return new Promise(function (resolve:Function, reject:Function) {
+            const sql_quary = `SELECT * FROM memo;`
+            this_db.all(sql_quary, async (err, data:Memo[])=>{
+                if(err) reject({name:'fn get_memo SQL err',err:err});
+                else  resolve(data);
+            })
+        })
+    }
 }
 
 class ImageDB extends myDB{

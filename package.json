@@ -4,7 +4,7 @@
   "description": "자바스크립트 기반 일정 관리 프로그램",
   "main": "app.ts",
   "scripts": {
-    "test": "tsc\nnode built/app.js"
+    "test": "tsc\nnode built/app.js rem 이거 작동안됨"
   },
   "author": "esctabcapslock",
   "license": "ISC",

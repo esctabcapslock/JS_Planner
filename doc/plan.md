@@ -77,6 +77,15 @@
 - 편집기는 마크다운 기반(?)으로 하고,
 - 이미지 넣을 수 있도록 하기
 
+## 깃헙 업로드
+```cmd
+git add ./src
+git add ./built
+git add ./doc
+git add ./package.json
+git add ./tsconfig.json
+git status
+```
 
 ## 참조
 ### 타입스크립트
