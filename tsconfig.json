@@ -1,0 +1,21 @@
+{
+    
+    "compilerOptions": {
+        "lib": ["es2015"],
+        // "outFile": "built/tsc.js",
+        "module": "CommonJS",
+        "moduleResolution":"Node",
+        "outDir": "built"
+    },
+    // "files": [
+    //     "app.ts",
+        
+    // ],
+    "include": [
+        "./src/module/*",
+        "./src/app.ts",
+    ]
+    
+
+
+}
