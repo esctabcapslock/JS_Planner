@@ -68,14 +68,17 @@
 ### 메인페이지
 
 - 스프레드시트 형태의 구성
-- 가까운 과업 위주로 구성하기
+- 가까운 과업 위주로 정렬하여 보여주기
 - 빈 셀 클릭: 일정추가
-- 그냥 셀 좌클릭: 편집
-- 그냥 셀 우클릭: 삭제 할 수 있음
+- 그냥 셀 좌클릭: 메모열기
+- 그냥 셀 우클릭 or 더블클릭: 편집 or 삭제할 수 있는 contextmenu가 열림
+- 하나의 과정에 여러 메모가 연동됨
 
 - 아래 창같은게 뜨게 하고,,,
 - 편집기는 마크다운 기반(?)으로 하고,
-- 이미지 넣을 수 있도록 하기
+    - 실시간 동시 편집 구현을 목표로 하자
+    - socket.io or 직접구현 유력
+- 이미지, 필기내용 넣을 수 있도록 하기
 
 ## 깃헙 업로드
 ```cmd
@@ -85,8 +88,9 @@ git add ./doc
 git add ./public
 git add ./package.json
 git add ./tsconfig.json
+git add ./README.md
 git status
-git commit -m "서버 API 작성"
+git commit -m "readme.md 파일을 수정"
 git push origin master
 ```
 
