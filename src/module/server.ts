@@ -18,7 +18,8 @@ export const httpserver = HTTP.createServer(async (req: HTTP.IncomingMessage, re
         case 'static': await sendfile(res,path+'\\public'+url,'utf8','',undefined); break;
         default: _404(res,url,"task-default");
     }else if(method=='POST'){POST(req,res, async(res:HTTP.ServerResponse, buffer:Buffer)=>{
-        console.log('POST',buffer.length)
+        console.log('POST',buffer?.length)
+        if(!buffer){_404(res,url,{name:"POST buffer가 비었음"}); return}
         let req_data:any
         try{req_data = buffer.length ? JSON.parse(buffer.toString()) : {}
         }catch(err){_404(res,url,{name:"POST json 변환오류",err}); return;}

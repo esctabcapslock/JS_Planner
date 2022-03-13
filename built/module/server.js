@@ -78,7 +78,11 @@ exports.httpserver = HTTP.createServer(function (req, res) { return __awaiter(vo
                         return __generator(this, function (_f) {
                             switch (_f.label) {
                                 case 0:
-                                    console.log('POST', buffer.length);
+                                    console.log('POST', buffer === null || buffer === void 0 ? void 0 : buffer.length);
+                                    if (!buffer) {
+                                        (0, server_fn_1._404)(res, url, { name: "POST buffer가 비었음" });
+                                        return [2 /*return*/];
+                                    }
                                     try {
                                         req_data = buffer.length ? JSON.parse(buffer.toString()) : {};
                                     }

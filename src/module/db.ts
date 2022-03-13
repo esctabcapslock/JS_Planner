@@ -32,7 +32,7 @@ export function interfaceOfTask(obj:object):obj is Task {
         switch(key){
             case 'id': if(typeof obj[key] != 'number' && obj[key]!=null) return false; break;
             case 'name': if(typeof obj[key] != 'string') return false; break;
-            case 'type': if(typeof obj[key] != 'number' && obj[key]!=null) return false; break;
+            case 'type': if(typeof obj[key] != 'string' && obj[key]!=null) return false; break;
         }
     }
     return true
@@ -155,6 +155,7 @@ class TaskDB extends myDB{
     //과업을 추가
     async add_task(task:Task): Promise<void> {
         if(!await this.exist()) throw("fn add_task DB not exist");
+        console.log('[add_task],task',task)
         if(!interfaceOfTask(task)) throw("fn add_task 인터페이스 불일치");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {

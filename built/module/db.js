@@ -89,7 +89,7 @@ function interfaceOfTask(obj) {
                     return false;
                 break;
             case 'type':
-                if (typeof obj[key] != 'number' && obj[key] != null)
+                if (typeof obj[key] != 'string' && obj[key] != null)
                     return false;
                 break;
         }
@@ -281,6 +281,7 @@ var TaskDB = /** @class */ (function (_super) {
                     case 1:
                         if (!(_a.sent()))
                             throw ("fn add_task DB not exist");
+                        console.log('[add_task],task', task);
                         if (!interfaceOfTask(task))
                             throw ("fn add_task 인터페이스 불일치");
                         this_db = this.db;

@@ -1,0 +1,35 @@
+#myconfirm_wrap{
+    position: fixed;
+    z-index: 1;
+  
+}
+#myconfirm{
+    background-color: white;
+  }
+  
+.myconfirm_list{
+  display: table-row
+}
+.myconfirm_list>label{
+  display: table-cell;
+}
+
+.myconfirm_list>input.myconfirm_primary{
+  display: table-cell;
+}
+
+.myconfirm_op:checked ~ label{
+  color: black
+}
+  
+.myconfirm_op ~ label{
+  color: gray;
+}
+
+.myconfirm_op ~ input{
+  display: none;
+}
+
+.myconfirm_op:checked ~ input{
+  display: table-cell;
+}

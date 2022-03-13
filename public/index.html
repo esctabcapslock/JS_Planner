@@ -5,12 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link type="text/css" rel="stylesheet" href="static/main.css">
+    <link type="text/css" rel="stylesheet" href="static/fns.css">
     <script src="static/app.js"></script>
+    <script src="static/fns.js"></script>
     <title>계획</title>
 </head>
 <body>
     <header>
-
+        <button id="btn_addtask">add task</button>
     </header>
     <main>
         <div id="mytable_header">
@@ -21,6 +23,9 @@
             <div id="mytable_side"></div>
             <div id="mytalbe_data"></div>
         </div>
+
+        <div id="myconfirm_wrap"></div>
+        <div id="mycontextmenu_wrap"></div>
     </main>
     <aside>
 
@@ -31,6 +36,7 @@
 
     <script>
         const app = new App();
+        const myconfirm = new myConfirm(document.getElementById('myconfirm_wrap'));
     </script>
 </body>
 </html>

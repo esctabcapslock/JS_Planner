@@ -92,4 +92,5 @@ git push origin master
 
 ## 참조
 ### 타입스크립트
-- [ㅅ](https://medium.com/jspoint/typescript-compilation-the-typescript-compiler-4cb15f7244bc)
+- [컴파일러](https://medium.com/jspoint/typescript-compilation-the-typescript-compiler-4cb15f7244bc)
+- [TS 전반](https://joshua1988.github.io/ts/guide/interfaces.html)

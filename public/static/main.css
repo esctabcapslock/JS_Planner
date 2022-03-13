@@ -1,3 +1,9 @@
+*{
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 #mytable_body{
   display: block;
   position: relative;
@@ -14,23 +20,26 @@
 #mytable_body>div>div{
   display: table-row;
 }
+#mytable_side>div>div:first-child{
+  border-left: 1px solid rgba(0,0,0,0.3);
+}
 #mytable_body>div>div>div{
-  display: block;
-  float: left;
+  display: table-cell;
+  /* float: left; */
   padding: 2px 4px;
-  margin: 0; 
-  border: 1px solid rgba(0,0,0,0.3);
+  border-bottom: 1px solid rgba(0,0,0,0.3);
+  border-right: 1px solid rgba(0,0,0,0.3);
 }
 
 #mytable_side .holiday{
-background-color: rgb(256,170,170);
+background-color: rgb(255, 202, 202);
 }
 
 
 #mytable_header{
   position: relative;
   display: block;
-  min-height: 1em;
+  min-height: 27px;
 }
 #mytable_header>div{
   display: inline;
@@ -38,15 +47,23 @@ background-color: rgb(256,170,170);
   float: left;
 }
 #mytable_header>div:first-child{
-display: block;
-  border: 1px solid rgba(0,0,0,0.3);
+  display: table-row;
+/* display: inline; */
+padding: 2px 4px;
+margin: 0;
+border: 1px solid rgba(0,0,0,0.3);
 }
 #mytable_task{
 display: table-row;
+/* padding: 3px 0; */
 }
 #mytable_task > div{
-display: inline;
+display: table-cell;
   padding: 2px 4px;
   margin: 0;
   border: 1px solid rgba(0,0,0,0.3);
+  border-left: 0;
+}
+.process::before{
+  content: '•';
 }
