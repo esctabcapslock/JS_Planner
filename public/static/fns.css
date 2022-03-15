@@ -1,35 +1,49 @@
 #myconfirm_wrap{
-    position: fixed;
-    z-index: 1;
-  
+  position: fixed;
+  z-index: 1;
+width: 100vw;
+height: 100vh;
+top: 0;
+left: 0;
+background-color: rgba(0,0,0,0.5);
+  display: none;
 }
 #myconfirm{
-    background-color: white;
-  }
-  
+position: relative;
+top: 10vh;
+left: 0vw;
+  background-color: white;
+border: 1px solid black;
+}
+
 .myconfirm_list{
-  display: table-row
+display: table-row
 }
 .myconfirm_list>label{
-  display: table-cell;
+display: table-cell;
 }
 
 .myconfirm_list>input.myconfirm_primary{
-  display: table-cell;
+display: table-cell;
 }
 
 .myconfirm_op:checked ~ label{
-  color: black
+color: black
 }
-  
+
 .myconfirm_op ~ label{
-  color: gray;
+color: gray;
 }
 
 .myconfirm_op ~ input{
-  display: none;
+display: none;
 }
 
 .myconfirm_op:checked ~ input{
-  display: table-cell;
+display: table-cell;
+}
+
+
+#myconfirm button{
+margin: 5px;
 }

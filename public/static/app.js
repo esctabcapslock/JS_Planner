@@ -1,6 +1,17 @@
 class App{
     //this.processlist;
     //this.tasklist;
+
+    check_singleclick(e,callback){
+        const click_interval = 200
+        if(Date.now() - this.clicktime < click_interval) return;
+        // console.log('23r')
+        this.clicktime = Date.now()
+        setTimeout(() => {
+            if (Date.now() - this.clicktime >= click_interval-20) callback(e)
+        }, click_interval);
+    }
+
     constructor(){
         this.dom = {}
         this.TimezoneOffset = -540// 한국시간 GMT+9 고정
@@ -9,6 +20,7 @@ class App{
         this.dom.mytable_side = d('mytable_side')
         this.dom.mytalbe_data = d('mytalbe_data')
         this.dom.mytable_header = d('mytable_header')
+        this.clicktime = 0
         
         this.getdata();
         // 이번트리스너 추가
@@ -19,7 +31,10 @@ class App{
             ])
             this.db.add_task(ans)
         })
-        this.dom.mytalbe_data.addEventListener('click',async e=>{
+        d('btn_drow').addEventListener('click',async e=>{this.drow()})
+        this.dom.mytalbe_data.addEventListener('click',(e)=>{this.check_singleclick(e,async e=>{
+            
+
             const classList = [...e.target.classList]
             console.log(e.target, classList)
             if(classList.includes('cell')){
@@ -42,14 +57,17 @@ class App{
                 ans.memoid = []
                 this.db.add_process(ans)
             }
-        })
+        })})
 
         
         this.dom.mytalbe_data.addEventListener('contextmenu',e=>{
+            console.log(e)
+            alert('contextmenu')
             // 참고로 사파리 동작 안 함...
         })
         this.dom.mytalbe_data.addEventListener('dblclick',e=>{
             // 참고로 Chrome Android, Samsung Internet 동작 안 함...
+            alert('dblclick')
         })
     }
     toINTstr(n,d){
@@ -141,8 +159,9 @@ class App{
 
     async drowtable(){
         // 표처럼 만들기
+        const d = txt=>document.getElementById(txt)
         const ly = document.querySelectorAll('#mytable_side .date').length
-        const lx = document.getElementById('mytalbe_data').childNodes[0].childNodes.length
+        const lx = d('mytalbe_data').childNodes[0].childNodes.length
         
         if(ly<=0 || lx <= 0) throw("표를 그릴 수 없음.")
 
@@ -151,12 +170,12 @@ class App{
         const arr_head_x = new Array(lx).fill(0)
 
         let x=0;
-        for(const ele of document.getElementById('mytable_task').children)
+        for(const ele of d('mytable_task').children)
             arr_head_x[x++] = ele.clientWidth
         
 
         let y=0;
-        for (const row_ele of document.getElementById('mytalbe_data').children){
+        for (const row_ele of d('mytalbe_data').children){
             let x=0
             for(const v of row_ele.children){
                 arr_y[y] = Math.max(arr_y[y], v.clientHeight)
@@ -169,11 +188,12 @@ class App{
 
 
         // header 보다 작은거면 바꾸기
-        for (const row_ele of document.getElementById('mytalbe_data').children){
+        for (const row_ele of d('mytalbe_data').children){
             let x=0
             for(const v of row_ele.children){
                 if (arr_x[x] < arr_head_x[x])
                     v.style.width = arr_head_x[x]-8+'px'
+                else v.style.width = undefined
                 x++;
             }
             y++;
@@ -181,7 +201,7 @@ class App{
 
         // 왼쪽 높이 설정
         y=0;
-        for(const row_ele of document.getElementById('mytable_side').children){
+        for(const row_ele of d('mytable_side').children){
             for(const ele of row_ele.childNodes){
                 ele.style.height = arr_y[y]-4+'px'
             }
@@ -189,15 +209,17 @@ class App{
         }
 
         x=0;
-        for(const ele of document.getElementById('mytable_task').children){
+        for(const ele of d('mytable_task').children){
             if(arr_x[x] > arr_head_x[x])
                 ele.style.width = arr_x[x]-8+'px'
+            else ele.style.width = undefined
             x++
         }
 
-        const leftwidth = document.getElementById('mytable_side').children[0].clientWidth
-        document.getElementById('mytable_header').children[0].style.width = leftwidth -8-2+ 'px'
-        document.getElementById('mytalbe_data').style.left = leftwidth + 'px'
+        const leftwidth = d('mytable_side').children[0].clientWidth
+        d('mytable_header').children[0].style.width = leftwidth -8-2+ 'px'
+        d('mytalbe_data').style.left = leftwidth + 'px'
+        d('mytable_task').style.left = leftwidth + 'px'
     }
     
     db={

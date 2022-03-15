@@ -90,7 +90,7 @@ git add ./package.json
 git add ./tsconfig.json
 git add ./README.md
 git status
-git commit -m "readme.md 파일을 수정"
+git commit -m "표가 바르게 출력되도록 CSS 수정, confirm 메뉴 수정"
 git push origin master
 ```
 

@@ -1,6 +1,12 @@
 class myConfirm{
     constructor(dom){
         this.dom = dom
+        dom.addEventListener('click',e=>{
+            if(e.target===this.dom && this.dom.style.display != 'none'){
+                console.log('none, noe')
+                document.getElementById('btn_mycancel').click()
+            }
+        })
     }
     createConfirmObj(name, type, primary, explain, initvalue){
         if(typeof primary != 'boolean') throw("ConfirmObj에서, primary의 자료형이 boolean 아님")
@@ -13,6 +19,7 @@ class myConfirm{
         return out
     }
     confirm(header, msg, objlist){return new Promise((resolve,reject)=>{
+        this.dom.style.display='block'
         let flag = true;
         let firmhtml = ''
         console.log('[confirm] objlist',objlist)
@@ -34,6 +41,7 @@ class myConfirm{
         this.dom.innerHTML = `<div id="myconfirm"><h2>${header}</h2><p>${msg}</p><p>${firmhtml}</p><button id="btn_myconfirm">확인</button><button id="btn_mycancel">취소</button>`
         document.getElementById('btn_mycancel').addEventListener('click',e=>{
             reject();
+            this.dom.style.display = 'none'
             this.dom.innerHTML = ''  
         })
         document.getElementById('btn_myconfirm').addEventListener('click',e=>{
@@ -77,7 +85,17 @@ class myConfirm{
             }
             console.log('confirm_my',out);
             this.dom.innerHTML = ''
+            this.dom.style.display='none' 
             resolve(out)
         })                     
     })}
+}
+
+class myContext{
+    constructor(dom){
+        this.dom = dom
+    }
+    createContextObj(naem, explain,callback){
+        const out = {}
+    }
 }

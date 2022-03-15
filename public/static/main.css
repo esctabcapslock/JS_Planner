@@ -34,6 +34,11 @@
 #mytable_side .holiday{
 background-color: rgb(255, 202, 202);
 }
+.cell{
+  height: 22px;
+  min-width: 30px;
+  white-space : nowrap;
+}
 
 
 #mytable_header{
@@ -42,12 +47,13 @@ background-color: rgb(255, 202, 202);
   min-height: 27px;
 }
 #mytable_header>div{
-  display: inline;
-  position: relative;
-  float: left;
+  display: inline-block;
+  position: absolute;
+  width: max-content;
+  /* float: left; */
 }
 #mytable_header>div:first-child{
-  display: table-row;
+  /* display: table-row; */
 /* display: inline; */
 padding: 2px 4px;
 margin: 0;
@@ -63,7 +69,22 @@ display: table-cell;
   margin: 0;
   border: 1px solid rgba(0,0,0,0.3);
   border-left: 0;
+  min-width: 30px;
+  white-space : nowrap;
 }
+
+.process{
+  height: 22px;
+}
+
 .process::before{
   content: '•';
+}
+
+
+button{
+  margin: 5px;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 15px;
 }
