@@ -3,12 +3,18 @@ class App{
     //this.tasklist;
 
     check_singleclick(e,callback){
-        const click_interval = 200
-        if(Date.now() - this.clicktime < click_interval) return;
-        // console.log('23r')
+        const click_interval = 300
+        if((Date.now() - this.clicktime) < click_interval+20) {
+            this.clicktime = Date.now()
+            // console.log('23r')
+            return;
+        }
         this.clicktime = Date.now()
         setTimeout(() => {
-            if (Date.now() - this.clicktime >= click_interval-20) callback(e)
+            if ((Date.now() - this.clicktime) >= click_interval-20){
+                // console.log('+timeout click 준비가 됨')
+                callback(e)
+            } 
         }, click_interval);
     }
 
@@ -32,13 +38,13 @@ class App{
             this.db.add_task(ans)
         })
         d('btn_drow').addEventListener('click',async e=>{this.drow()})
-        this.dom.mytalbe_data.addEventListener('click',(e)=>{this.check_singleclick(e,async e=>{
-            
-
+        this.dom.mytalbe_data.addEventListener('click',(e)=>{
+            // if(mycontext.contextoff()) return; //만약 contextoff가 켜저있다면 작동X
+            this.check_singleclick(e,async e=>{
             const classList = [...e.target.classList]
-            console.log(e.target, classList)
+            // console.log(e.target, classList)
             if(classList.includes('cell')){
-                console.log('[click - cell] 정보추가', e.target.id.split('_')[1])
+                // console.log('[click - cell] 정보추가', e.target.id.split('_')[1])
                 const ids = e.target.id.split('_')
                 const tmpdate = new Date(Number(ids[1]))
                 const tmp = d=>d<10?'0'+String(d):d
@@ -56,18 +62,27 @@ class App{
                 ans.taskid = taskid
                 ans.memoid = []
                 this.db.add_process(ans)
+            }else if(classList.includes('process')){
+                // console.log('click')
             }
         })})
 
         
-        this.dom.mytalbe_data.addEventListener('contextmenu',e=>{
-            console.log(e)
-            alert('contextmenu')
+        this.dom.mytalbe_data.addEventListener('contextmenu',async e=>{
+            const classList = [...e.target.classList]
+            // console.log('[contextmenu]',e)
+            if(classList.includes('process')){
+                e.preventDefault()
+                this.process_context({x:e.clientX,y:e.clientY},Number(e.target.id.split('_')[1]))
+            }
             // 참고로 사파리 동작 안 함...
         })
-        this.dom.mytalbe_data.addEventListener('dblclick',e=>{
+        this.dom.mytalbe_data.addEventListener('dblclick',async e=>{
             // 참고로 Chrome Android, Samsung Internet 동작 안 함...
-            alert('dblclick')
+            const classList = [...e.target.classList]
+            if(classList.includes('process')){
+                this.process_context({x:e.clientX,y:e.clientY},Number(e.target.id.split('_')[1]))
+            }
         })
     }
     toINTstr(n,d){
@@ -151,7 +166,7 @@ class App{
             const ele = document.getElementById(id)
             if(!ele) {console.error(ele, id); continue;}
             if(ele.innerHTML=='&nbsp;') ele.innerHTML='';
-            ele.innerHTML += `<div class="process process_${id}">${v.name}</div>`
+            ele.innerHTML += `<div id="process_${v.id}" class="process">${v.name}</div>`
         }
 
         this.drowtable()
@@ -221,6 +236,14 @@ class App{
         d('mytalbe_data').style.left = leftwidth + 'px'
         d('mytable_task').style.left = leftwidth + 'px'
     }
+
+    async process_context(pos,id){
+        console.log('[process_context]',pos)
+        mycontext.context(pos,[
+            myContext.prototype.createContextObj('수정','',e=>{this.db.edit_process(id)}),
+            myContext.prototype.createContextObj('삭제','',e=>{this.db.delete_process(id)}),
+        ])
+    }
     
     db={
         add_task:(obj)=>{
@@ -232,7 +255,6 @@ class App{
                 body:JSON.stringify(obj)
             }).then(d=>{
                 console.log(d)
-
                 // 이거 추가로 그려버리기...
                 
                 this.tasklist.push(obj)
@@ -242,7 +264,7 @@ class App{
             // fetch 시키기...
         },
         add_process:(obj)=>{
-            console.log('[add_task]',obj)
+            // console.log('[add_task]',obj)
             if(obj.type == '') obj.type = null
             obj.id = null
             obj.ended = Number(obj.ended)
@@ -255,6 +277,46 @@ class App{
                 // 이거 추가로 그려버리기...
                 this.processlist.push(obj)
                 this.drow()
+            })
+
+        },
+        edit_process:(id)=>{
+            const obj = this.processlist.filter(v=>v.id==id)[0]
+            
+            console.log('oobj',obj)
+
+            const parsedate = n=>{
+                if(n===null) return undefined
+                const tmpdate = new Date(Number(n))
+                const tmp = d=>d<10?'0'+String(d):d
+                return tmpdate.getFullYear()+'-'+tmp(tmpdate.getMonth()+1)+'-'+tmp(tmpdate.getDate())
+            }
+            myconfirm.confirm('process 수정','다음 사항 수정',[
+                myConfirm.prototype.createConfirmObj('name','string',true, '',obj.name),
+                myConfirm.prototype.createConfirmObj('startdate','date',true, '',parsedate(obj.startdate)),
+                myConfirm.prototype.createConfirmObj('enddate','date',false, '',parsedate(obj.enddate)),
+                myConfirm.prototype.createConfirmObj('starttime','time',false, obj.starttime),
+                myConfirm.prototype.createConfirmObj('endtime','time',false, '',obj.endtime),
+                myConfirm.prototype.createConfirmObj('ended','checkbox',true, '',obj.ended),
+                
+            ]).then(data=>{
+                data.id = obj.id
+                data.memoid = obj.memoid==''?[]:obj.memoid.split(',').map(v=>Number(v))
+                data.taskid = obj.taskid
+                data.ended = Number(data.ended)
+                console.log('d confted',data)
+                fetch('./api/process/edit',{
+                    method:'post',
+                    body:JSON.stringify(data)
+                }).then(d=>{
+                    console.log(d)
+
+                    this.processlist = this.processlist.filter(v=>v.id!=id)
+                    this.processlist.push(data)
+                    this.drow()
+    
+                    // 이거 추가로 그려버리기...
+                })
             })
 
         }

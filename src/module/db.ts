@@ -14,7 +14,7 @@ function toSQLobj(obj:object, deleteid:string[]|undefined):object{
     for (const i in obj) if(!deleteid || !deleteid.includes(i)){
         new_obj['$'+i] = Array.isArray(obj[i])?obj[i].join(','):obj[i]
     }
-    console.log(new_obj)
+    // console.log('[toSQLobj]',new_obj)
     return new_obj
 }
 
@@ -233,7 +233,7 @@ class TaskDB extends myDB{
         if (!isInt(process.id) || process.id<0) throw("fn edit_process process.id 정수 아님");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
-            const sql_quary = `UPDATE process SET name=$name, startdate=$startdate,enddate=$enddate,starttime,endtime=$starttime,taskid=$taskid,memoid=$memoid WHERE id=$id;`
+            const sql_quary = `UPDATE process SET name=$name, startdate=$startdate, enddate=$enddate, starttime=$starttime, endtime=$endtime, taskid=$taskid, memoid=$memoid, ended=$ended WHERE id=$id;`
             this_db.all(sql_quary, toSQLobj(process,[]), async (err)=>{
                 if(err) reject({name:'fn edit_process SQL err',err:err});
                 else resolve();
@@ -343,7 +343,6 @@ class ImageDB extends myDB{
         })}) 
     }
 }
-
 
 export const taskdb = new TaskDB('task')
 export const imagedb = new ImageDB('image')

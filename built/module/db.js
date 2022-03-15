@@ -70,7 +70,7 @@ function toSQLobj(obj, deleteid) {
         if (!deleteid || !deleteid.includes(i)) {
             new_obj['$' + i] = Array.isArray(obj[i]) ? obj[i].join(',') : obj[i];
         }
-    console.log(new_obj);
+    console.log('[toSQLobj]', new_obj);
     return new_obj;
 }
 function interfaceOfTask(obj) {
@@ -457,7 +457,7 @@ var TaskDB = /** @class */ (function (_super) {
                         this_db = this.db;
                         return [2 /*return*/, new Promise(function (resolve, reject) {
                                 var _this = this;
-                                var sql_quary = "UPDATE process SET name=$name, startdate=$startdate,enddate=$enddate,starttime,endtime=$starttime,taskid=$taskid,memoid=$memoid WHERE id=$id;";
+                                var sql_quary = "UPDATE process SET name=$name, startdate=$startdate, enddate=$enddate, starttime=$starttime, endtime=$endtime, taskid=$taskid, memoid=$memoid, ended=$ended WHERE id=$id;";
                                 this_db.all(sql_quary, toSQLobj(process, []), function (err) { return __awaiter(_this, void 0, void 0, function () {
                                     return __generator(this, function (_a) {
                                         if (err)

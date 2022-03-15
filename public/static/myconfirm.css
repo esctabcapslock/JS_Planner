@@ -14,6 +14,9 @@ top: 10vh;
 left: 0vw;
   background-color: white;
 border: 1px solid black;
+margin: 8vw;
+padding: 4vw;
+width: 72vw;
 }
 
 .myconfirm_list{

@@ -90,8 +90,12 @@ git add ./package.json
 git add ./tsconfig.json
 git add ./README.md
 git status
-git commit -m "표가 바르게 출력되도록 CSS 수정, confirm 메뉴 수정"
+git commit -m "context 메뉴 만듦 + 수정기능 일부 만듦"
 git push origin master
+```
+## 콘솔에서 실행
+```cmd
+tsc; node built/app    
 ```
 
 ## 참조

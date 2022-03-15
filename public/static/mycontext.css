@@ -1,0 +1,29 @@
+#mycontextmenu_wrap{
+    z-index: 2;
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* display: none; */
+}
+#mycontext{
+    position: relative;
+    background-color: white;
+    border: 1px solid rgb(230,230,230);
+}
+
+#mycontext>div{
+    padding: 3px;
+    border-bottom: 1px solid gray;
+}
+
+#mycontext>div>span{
+    margin: 0 10px;
+}
+
+#mycontext>div:hover{
+    background-color: rgb(230,230,230);
+}
+
+#mycontext>div:last-child{
+    border: 0;
+}

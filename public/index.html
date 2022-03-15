@@ -5,9 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link type="text/css" rel="stylesheet" href="static/main.css">
-    <link type="text/css" rel="stylesheet" href="static/fns.css">
+    <link type="text/css" rel="stylesheet" href="static/myconfirm.css">
+    <link type="text/css" rel="stylesheet" href="static/mycontext.css">
+    <link rel="icon" type="image/png" href="images/baseline_event_black_24dp.png">
     <script src="static/app.js"></script>
-    <script src="static/fns.js"></script>
+    <script src="static/mycontext.js"></script>
+    <script src="static/myconfirm.js"></script>
     <title>계획</title>
 </head>
 <body>
@@ -36,8 +39,9 @@
     </footer>
 
     <script>
-        const app = new App();
         const myconfirm = new myConfirm(document.getElementById('myconfirm_wrap'));
+        const mycontext = new myContext(document.getElementById('mycontextmenu_wrap'));
+        const app = new App();
     </script>
 </body>
 </html>

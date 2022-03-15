@@ -16,6 +16,7 @@ export const httpserver = HTTP.createServer(async (req: HTTP.IncomingMessage, re
     switch (url_arr[1]){
         case '': await sendfile(res,path+'\\public\\index.html','utf8','',undefined); break;
         case 'static': await sendfile(res,path+'\\public'+url,'utf8','',undefined); break;
+        case 'images': await sendfile(res,path+'\\public'+url,'','',undefined); break;
         default: _404(res,url,"task-default");
     }else if(method=='POST'){POST(req,res, async(res:HTTP.ServerResponse, buffer:Buffer)=>{
         console.log('POST',buffer?.length)
@@ -31,8 +32,8 @@ export const httpserver = HTTP.createServer(async (req: HTTP.IncomingMessage, re
                     case 'task':
                         switch(url_arr[3]){
                             case 'add': await taskdb.add_task(req_data); break;
-                            case 'edit': await taskdb.add_task(req_data); break;
-                            case 'del': await taskdb.add_task(req_data.taskid); break;
+                            case 'edit': await taskdb.edit_task(req_data); break;
+                            case 'del': await taskdb.del_task(req_data.taskid); break;
                             case 'getlist': data = await taskdb.get_tasklist(); break;
                             default: throw("task-default 1");
                         } break;
@@ -68,13 +69,13 @@ export const httpserver = HTTP.createServer(async (req: HTTP.IncomingMessage, re
 
 }).listen(port, () => console.log(`server is running at localhost:${port}`))
 
-taskdb.add_task({ id: null, name: "시험", type: null }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
-taskdb.add_task({ id: null, name: "밥", type: null }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
-taskdb.add_task({ id: null, name: "잠", type: null }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
-taskdb.add_process({ id: null, name: "일어나기", startdate: 1642550400000, enddate: null, starttime: null, endtime: null, taskid: 1, memoid: [], ended: 0 }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
-taskdb.add_process({ id: null, name: "자기", startdate: 1642636800000, enddate: null, starttime: null, endtime: null, taskid: 1, memoid: [], ended: 0 }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
-taskdb.add_process({ id: null, name: "라면", startdate: 1642723200000, enddate: null, starttime: null, endtime: null, taskid: 2, memoid: [], ended: 0 }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
-taskdb.add_process({ id: null, name: "김밥", startdate: 1642636800000, enddate: null, starttime: null, endtime: null, taskid: 2, memoid: [], ended: 0 }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
+// taskdb.add_task({ id: null, name: "시험", type: null }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
+// taskdb.add_task({ id: null, name: "밥", type: null }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
+// taskdb.add_task({ id: null, name: "잠", type: null }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
+// taskdb.add_process({ id: null, name: "일어나기", startdate: 1642550400000, enddate: null, starttime: null, endtime: null, taskid: 1, memoid: [], ended: 0 }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
+// taskdb.add_process({ id: null, name: "자기", startdate: 1642636800000, enddate: null, starttime: null, endtime: null, taskid: 1, memoid: [], ended: 0 }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
+// taskdb.add_process({ id: null, name: "라면", startdate: 1642723200000, enddate: null, starttime: null, endtime: null, taskid: 2, memoid: [], ended: 0 }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
+// taskdb.add_process({ id: null, name: "김밥", startdate: 1642636800000, enddate: null, starttime: null, endtime: null, taskid: 2, memoid: [], ended: 0 }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
 
 //taskdb.edit_task({id:4, name:"시?험",type:'few'}).then(d=>console.log('d',d)).catch(err=>console.error('e',err))
 //taskdb.del_task(4).then(d=>console.log('d',d)).catch(err=>console.error('e',err))

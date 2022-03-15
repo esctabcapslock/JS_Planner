@@ -5,6 +5,7 @@ class myConfirm{
             if(e.target===this.dom && this.dom.style.display != 'none'){
                 console.log('none, noe')
                 document.getElementById('btn_mycancel').click()
+                
             }
         })
     }
@@ -22,20 +23,20 @@ class myConfirm{
         this.dom.style.display='block'
         let flag = true;
         let firmhtml = ''
-        console.log('[confirm] objlist',objlist)
+        // console.log('[confirm] objlist',objlist)
         for(const obj of objlist){
-
+            const valued = (obj.initvalue!=undefined&&obj.initvalue!=null) //초기값이 설정되어있냐
             // console.log(obj, obj.initvalue!=undefined?'value='+obj.initvalue:'')
             if(obj.primary) firmhtml+=`
             <div class="myconfirm_list">
                 <label for="myconfirm_${obj.name}">${obj.name}</label>
-                <input type="${obj.type}" id="myconfirm_${obj.name}" class="myconfirm_primary" ${obj.initvalue!=undefined?'value='+obj.initvalue:''}>
+                <input type="${obj.type}" id="myconfirm_${obj.name}" class="myconfirm_primary" ${valued?'value='+obj.initvalue:''}>
             </div>`
             else firmhtml+=`
             <div class="myconfirm_list">
-                <input type="checkbox" id="myconfirm_op_${obj.name}" class="myconfirm_op" style="display:none;">
+                <input type="checkbox" id="myconfirm_op_${obj.name}" class="myconfirm_op" style="display:none;" ${valued?'checked':''}>
                 <label for="myconfirm_op_${obj.name}">${obj.name}</label>
-                <input type="${obj.type}" id="myconfirm_${obj.name}"  ${obj.initvalue!=undefined?'value='+obj.initvalue:''}>
+                <input type="${obj.type}" id="myconfirm_${obj.name}"  ${valued?'value='+obj.initvalue:''}>
             </div>`
         }
         this.dom.innerHTML = `<div id="myconfirm"><h2>${header}</h2><p>${msg}</p><p>${firmhtml}</p><button id="btn_myconfirm">확인</button><button id="btn_mycancel">취소</button>`
@@ -77,6 +78,10 @@ class myConfirm{
                     const ar = value.split('-')
                     // console.log(ar,'ar',value,new Date(ar[0],ar[1]-1,ar[2]))
                     out[name] = (new Date(ar[0],ar[1]-1,ar[2])).getTime()
+                }else if(type=='time'){
+                    const ar = value.split(':').map(v=>Number(v))
+                    // console.log(ar,'ar',value,new Date(ar[0],ar[1]-1,ar[2]))
+                    out[name] = ar[0]*24+ar[1]
                 }
                 else{
                     alert('타입을 확인해주시오...')
@@ -89,13 +94,4 @@ class myConfirm{
             resolve(out)
         })                     
     })}
-}
-
-class myContext{
-    constructor(dom){
-        this.dom = dom
-    }
-    createContextObj(naem, explain,callback){
-        const out = {}
-    }
 }
