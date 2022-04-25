@@ -70,7 +70,7 @@ function toSQLobj(obj, deleteid) {
         if (!deleteid || !deleteid.includes(i)) {
             new_obj['$' + i] = Array.isArray(obj[i]) ? obj[i].join(',') : obj[i];
         }
-    console.log('[toSQLobj]', new_obj);
+    // console.log('[toSQLobj]',new_obj)
     return new_obj;
 }
 function interfaceOfTask(obj) {

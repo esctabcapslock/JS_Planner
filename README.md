@@ -7,3 +7,4 @@
 ## 참고
 
 - [아이콘](https://material.io/resources/icons)
+- [Github 레파지토리 기본 언어 변경하기](https://kr-zephyr.github.io/github/2017/06/07/github-change-repo-language.html)

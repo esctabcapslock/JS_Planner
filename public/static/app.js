@@ -1,3 +1,4 @@
+function text(txt){return txt.replace(/[\u0000-\u9999<>\&]/g,(i)=>'&#'+i.charCodeAt(0)+';');}
 class App{
     //this.processlist;
     //this.tasklist;
@@ -138,7 +139,7 @@ class App{
 
         for(const v of this.tasklist){
             // console.log(v.name,this.dom.mytable_task)
-            this.dom.mytable_task.innerHTML += `<div>${v.name}</div>`
+            this.dom.mytable_task.innerHTML += `<div>${text(v.name)}</div>`
         }
 
         let mindate = Infinity
@@ -166,7 +167,7 @@ class App{
             const ele = document.getElementById(id)
             if(!ele) {console.error(ele, id); continue;}
             if(ele.innerHTML=='&nbsp;') ele.innerHTML='';
-            ele.innerHTML += `<div id="process_${v.id}" class="process">${v.name}</div>`
+            ele.innerHTML += `<div id="process_${v.id}" class="process">${text(v.name)}</div>`
         }
 
         this.drowtable()
@@ -290,6 +291,10 @@ class App{
                 const tmpdate = new Date(Number(n))
                 const tmp = d=>d<10?'0'+String(d):d
                 return tmpdate.getFullYear()+'-'+tmp(tmpdate.getMonth()+1)+'-'+tmp(tmpdate.getDate())
+            }
+            const parsetime = n=>{
+                if(n===null) return undefined
+                return `${parseInt(n/24)}:${n%60}`
             }
             myconfirm.confirm('process 수정','다음 사항 수정',[
                 myConfirm.prototype.createConfirmObj('name','string',true, '',obj.name),

@@ -27,6 +27,7 @@ class myConfirm{
         for(const obj of objlist){
             const valued = (obj.initvalue!=undefined&&obj.initvalue!=null) //초기값이 설정되어있냐
             // console.log(obj, obj.initvalue!=undefined?'value='+obj.initvalue:'')
+            if(valued && obj.type=='string') obj.initvalue = obj.initvalue.replace(/[\u0000-\u9999<>\&]/g,(i)=>'&#'+i.charCodeAt(0)+';');
             if(obj.primary) firmhtml+=`
             <div class="myconfirm_list">
                 <label for="myconfirm_${obj.name}">${obj.name}</label>
