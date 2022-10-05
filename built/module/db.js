@@ -14,6 +14,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -51,7 +62,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.imagedb = exports.taskdb = exports.interfaceOfMemo = exports.interfaceOfProcess = exports.interfaceOfTask = void 0;
+exports.userDB = exports.imagedb = exports.taskdb = exports.interfaceOfMemo = exports.interfaceOfProcess = exports.interfaceOfTask = void 0;
 var fs = require("fs");
 var sqlite3 = require("sqlite3");
 function isInt(value) {
@@ -171,9 +182,9 @@ function interfaceOfMemo(obj) {
 exports.interfaceOfMemo = interfaceOfMemo;
 var myDB = /** @class */ (function () {
     function myDB(_filename) {
-        this.dbdirpath = __dirname + "\\..\\..\\db"; //db가 저장된 파일위치
+        this.dbdirpath = "".concat(__dirname, "\\..\\..\\db"); //db가 저장된 파일위치
         this.filename = _filename;
-        this.dbpath = this.dbdirpath + "\\" + this.filename + ".sqlite";
+        this.dbpath = "".concat(this.dbdirpath, "\\").concat(this.filename, ".sqlite");
         if (!fs.existsSync(this.dbdirpath))
             fs.mkdirSync(this.dbdirpath);
         this.db = new sqlite3.Database(this.dbpath);
@@ -441,7 +452,7 @@ var TaskDB = /** @class */ (function (_super) {
             });
         });
     };
-    TaskDB.prototype.edit_process = function (process) {
+    TaskDB.prototype.edit_process = function (id, process) {
         return __awaiter(this, void 0, void 0, function () {
             var this_db;
             return __generator(this, function (_a) {
@@ -452,13 +463,13 @@ var TaskDB = /** @class */ (function (_super) {
                             throw ("fn edit_process DB not exist");
                         if (!interfaceOfProcess(process))
                             throw ("fn edit_process 인터페이스 불일치");
-                        if (!isInt(process.id) || process.id < 0)
+                        if (!isInt(id) || id < 0)
                             throw ("fn edit_process process.id 정수 아님");
                         this_db = this.db;
                         return [2 /*return*/, new Promise(function (resolve, reject) {
                                 var _this = this;
                                 var sql_quary = "UPDATE process SET name=$name, startdate=$startdate, enddate=$enddate, starttime=$starttime, endtime=$endtime, taskid=$taskid, memoid=$memoid, ended=$ended WHERE id=$id;";
-                                this_db.all(sql_quary, toSQLobj(process, []), function (err) { return __awaiter(_this, void 0, void 0, function () {
+                                this_db.all(sql_quary, toSQLobj(__assign({ id: id }, process), []), function (err) { return __awaiter(_this, void 0, void 0, function () {
                                     return __generator(this, function (_a) {
                                         if (err)
                                             reject({ name: 'fn edit_process SQL err', err: err });
@@ -587,7 +598,7 @@ var TaskDB = /** @class */ (function (_super) {
             });
         });
     };
-    TaskDB.prototype.edit_memo = function (memo) {
+    TaskDB.prototype.edit_memo = function (id, memo) {
         return __awaiter(this, void 0, void 0, function () {
             var this_db;
             return __generator(this, function (_a) {
@@ -598,13 +609,13 @@ var TaskDB = /** @class */ (function (_super) {
                             throw ("fn edit_memo DB not exist");
                         if (!interfaceOfMemo(memo))
                             throw ("fn edit_memo 인터페이스 불일치");
-                        if (!isInt(memo.id) || memo.id < 0)
+                        if (!isInt(id) || id < 0)
                             throw ("fn edit_memo memo.id 정수 아님");
                         this_db = this.db;
                         return [2 /*return*/, new Promise(function (resolve, reject) {
                                 var _this = this;
                                 var sql_quary = "UPDATE memo SET name=$name, startdate=$startdate,enddate=$enddate,starttime,endtime=$starttime,taskid=$taskid,memoid=$memoid WHERE id=$id;";
-                                this_db.all(sql_quary, toSQLobj(process, []), function (err) {
+                                this_db.all(sql_quary, toSQLobj(__assign({ id: id }, memo), []), function (err) {
                                     var data = [];
                                     for (var _i = 1; _i < arguments.length; _i++) {
                                         data[_i - 1] = arguments[_i];
@@ -721,5 +732,100 @@ var ImageDB = /** @class */ (function (_super) {
     };
     return ImageDB;
 }(myDB));
+var UserDB = /** @class */ (function (_super) {
+    __extends(UserDB, _super);
+    function UserDB() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    UserDB.prototype.setting = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var this_db;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.isnone()];
+                    case 1:
+                        if (!(_a.sent()))
+                            return [2 /*return*/];
+                        this_db = this.db;
+                        this_db.run("CREATE TABLE \"user\" (\n                \"id\"\tINTEGER PRIMARY KEY AUTOINCREMENT,\n                \"email\"\tTEXT NOT NULL UNIQUE,\n                \"password\"\tTEXT NOT NULL,\n                \"info\"\tTEXT\n        );");
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    UserDB.prototype.login = function (email, password) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, this.exist()];
+                                case 1:
+                                    if (!(_a.sent()))
+                                        throw ("fn user DB not exist");
+                                    this.db.all("SELECT id FROM user WHERE email=$email AND password=$password", toSQLobj({ email: email, password: password }, []), function (err, rows) {
+                                        if (err || rows.length != 1) {
+                                            console.log('err', err, rows);
+                                            reject(false);
+                                        }
+                                        else
+                                            resolve(rows[0].id);
+                                    });
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
+            });
+        });
+    };
+    UserDB.prototype.signup = function (email, password) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            if (!/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(email))
+                                reject({ msg: "이메일 주소 유효성 아님" });
+                            this.db.all("INSERT INTO user (email, password) VALUES ($email, $password)", toSQLobj({ email: email, password: password }, []), function (err, rows) {
+                                if (err)
+                                    reject({ err: err, msg: "가입 실패" });
+                                else
+                                    resolve();
+                            });
+                            return [2 /*return*/];
+                        });
+                    }); })];
+            });
+        });
+    };
+    UserDB.prototype.addinfo = function (id, info) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            this.db.all("INSERT INTO user (info) VALUES ($info) where id=$id", toSQLobj({ id: id, info: info }, []), function (err, rows) {
+                                if (err)
+                                    reject({ err: err, msg: "저장 실패" });
+                                else
+                                    resolve();
+                            });
+                            return [2 /*return*/];
+                        });
+                    }); })];
+            });
+        });
+    };
+    UserDB.prototype.delect = function (id) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/];
+            });
+        });
+    };
+    return UserDB;
+}(myDB));
 exports.taskdb = new TaskDB('task');
 exports.imagedb = new ImageDB('image');
+exports.userDB = new UserDB('user');

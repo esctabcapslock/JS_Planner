@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/sqlite3": "^3.1.8",
+    "httptree": "^0.0.2",
     "sqlite3": "^5.0.2"
   }
 }

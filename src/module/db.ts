@@ -125,6 +125,7 @@ class TaskDB extends myDB{
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function) {
         this_db.serialize(()=>{
+
             this_db.run("CREATE TABLE task (\
                 id integer primary key autoincrement,\
                 name TEXT NOT NULL UNIQUE,\
@@ -227,14 +228,14 @@ class TaskDB extends myDB{
             })
         })
     }
-    async edit_process(process:Process): Promise<void> {
+    async edit_process(id:number, process:Process): Promise<void> {
         if(!await this.exist()) throw("fn edit_process DB not exist")
         if(!interfaceOfProcess(process)) throw("fn edit_process 인터페이스 불일치");
-        if (!isInt(process.id) || process.id<0) throw("fn edit_process process.id 정수 아님");
+        if (!isInt(id) || id<0) throw("fn edit_process process.id 정수 아님");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
             const sql_quary = `UPDATE process SET name=$name, startdate=$startdate, enddate=$enddate, starttime=$starttime, endtime=$endtime, taskid=$taskid, memoid=$memoid, ended=$ended WHERE id=$id;`
-            this_db.all(sql_quary, toSQLobj(process,[]), async (err)=>{
+            this_db.all(sql_quary, toSQLobj({id,...process},[]), async (err)=>{
                 if(err) reject({name:'fn edit_process SQL err',err:err});
                 else resolve();
             })
@@ -289,14 +290,14 @@ class TaskDB extends myDB{
             })
         })
     }
-    async edit_memo(memo:Memo): Promise<void> {
+    async edit_memo(id:number, memo:Memo): Promise<void> {
         if(!await this.exist()) throw("fn edit_memo DB not exist")
         if(!interfaceOfMemo(memo)) throw("fn edit_memo 인터페이스 불일치");
-        if (!isInt(memo.id) || memo.id<0) throw("fn edit_memo memo.id 정수 아님");
+        if (!isInt(id) || id<0) throw("fn edit_memo memo.id 정수 아님");
         const this_db:sqlite3.Database = this.db
         return new Promise(function (resolve:Function, reject:Function) {
             const sql_quary = `UPDATE memo SET name=$name, startdate=$startdate,enddate=$enddate,starttime,endtime=$starttime,taskid=$taskid,memoid=$memoid WHERE id=$id;`
-            this_db.all(sql_quary, toSQLobj(process,[]), async (err, ...data)=>{
+            this_db.all(sql_quary, toSQLobj({id,...memo},[]), async (err, ...data)=>{
                 if(err) reject({name:'fn edit_memo SQL err',err:err});
                 else resolve();
             })
@@ -344,5 +345,55 @@ class ImageDB extends myDB{
     }
 }
 
+
+class UserDB extends myDB{
+    async setting(): Promise<void> {
+        if(!(await this.isnone())) return;
+        const this_db:sqlite3.Database = this.db
+
+        this_db.run(`CREATE TABLE "user" (
+                "id"	INTEGER PRIMARY KEY AUTOINCREMENT,
+                "email"	TEXT NOT NULL UNIQUE,
+                "password"	TEXT NOT NULL,
+                "info"	TEXT
+        );`)
+    }
+
+    async login(email:string, password:string): Promise<number> {
+        return new Promise(async (resolve,reject) => {
+            if (!await this.exist()) throw ("fn user DB not exist")
+            this.db.all(`SELECT id FROM user WHERE email=$email AND password=$password`, toSQLobj({ email, password }, []), (err, rows) => {
+                if(err || rows.length!=1) {
+                    console.log('err',err, rows);
+                    reject(false)
+                }else resolve(rows[0].id)
+            })
+        })
+    }
+    async signup(email:string, password:number): Promise<void>{
+        return new Promise(async (resolve, reject) => {
+            if(!/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(email)) reject({msg:"이메일 주소 유효성 아님"})
+            this.db.all(`INSERT INTO user (email, password) VALUES ($email, $password)`,toSQLobj({ email, password },[]),(err,rows)=> {
+            if(err) reject({err,msg:"가입 실패"})
+            else resolve()
+        })
+        })
+    }
+
+    async addinfo(id:number, info:string):Promise<void>{
+        return new Promise(async (resolve, reject) => {
+        this.db.all(`INSERT INTO user (info) VALUES ($info) where id=$id`,toSQLobj({ id, info },[]),(err,rows)=> {
+            if(err) reject({err,msg:"저장 실패"})
+            else resolve()
+        })
+        })
+    }
+
+    async delect(id:number){
+        //TODO 삭제 구현하기
+    }
+}
+
 export const taskdb = new TaskDB('task')
 export const imagedb = new ImageDB('image')
+export const userDB = new UserDB('user')

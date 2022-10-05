@@ -85,6 +85,9 @@ class App{
                 this.process_context({x:e.clientX,y:e.clientY},Number(e.target.id.split('_')[1]))
             }
         })
+
+
+        window.onresize = ()=>this.screen_resize()
     }
     toINTstr(n,d){
         const lth =  1+Math.log10(n)|0 //길이
@@ -101,8 +104,8 @@ class App{
     async getdata(){
         const data = await Promise.all(
             [
-                fetch('../api/task/getlist',{method:'POST'}).then(d=>d.json()), 
-                fetch('../api/process/getlist',{method:'POST'}).then(d=>d.json())
+                fetch('../a/task',{method:'GET'}).then(d=>d.json()), 
+                fetch('../a/process',{method:'GET'}).then(d=>d.json())
             ])
         this.tasklist = data[0]
         this.processlist = data[1]
@@ -170,19 +173,28 @@ class App{
             ele.innerHTML += `<div id="process_${v.id}" class="process">${text(v.name)}</div>`
         }
 
+        document.getElementById('mytalbe_data').addEventListener('scroll',()=>this.x_scrool_header_move())
         this.drowtable()
     }
 
-    async drowtable(){
-        // 표처럼 만들기
+
+    get_table_array_size(){
         const d = txt=>document.getElementById(txt)
         const ly = document.querySelectorAll('#mytable_side .date').length
         const lx = d('mytalbe_data').childNodes[0].childNodes.length
+        return {lx, ly}
+    }
+
+
+    get_all_cell_size(){
+        const d = txt=>document.getElementById(txt)
+        const {lx, ly} = this.get_table_array_size()
         
         if(ly<=0 || lx <= 0) throw("표를 그릴 수 없음.")
-
+        
         const arr_y = new Array(ly).fill(0)
         const arr_x = new Array(lx).fill(0)
+        const arr_sum_x = new Array(lx).fill(0)
         const arr_head_x = new Array(lx).fill(0)
 
         let x=0;
@@ -196,11 +208,24 @@ class App{
             for(const v of row_ele.children){
                 arr_y[y] = Math.max(arr_y[y], v.clientHeight)
                 arr_x[x] = Math.max(arr_x[x], v.clientWidth)
+                arr_sum_x[x] = Math.max(arr_sum_x[x], v.offsetLeft)
                 x++;
             }
             y++;
         }
-        // console.log(arr_x, arr_y)
+        return {arr_y, arr_x, arr_head_x, arr_sum_x}
+    }
+
+    async drowtable(){
+        // 표처럼 만들기
+        const d = txt=>document.getElementById(txt)
+        const {lx, ly} = this.get_table_array_size()
+        
+        if(ly<=0 || lx <= 0) throw("표를 그릴 수 없음.")
+        
+        const {arr_y, arr_x, arr_head_x, arr_sum_x} = this.get_all_cell_size()
+        console.log('[drowtable]',this.get_all_cell_size())
+        let x=0, y=0;
 
 
         // header 보다 작은거면 바꾸기
@@ -225,10 +250,18 @@ class App{
         }
 
         x=0;
+        // let sum_left = 0
+        console.log('[arr_sum_x]',arr_sum_x)
         for(const ele of d('mytable_task').children){
-            if(arr_x[x] > arr_head_x[x])
+            ele.style.left = arr_sum_x[x]+'px'
+            if(arr_x[x] > arr_head_x[x]){
                 ele.style.width = arr_x[x]-8+'px'
-            else ele.style.width = undefined
+                // sum_left += arr_x[x]
+            }
+            else {
+                ele.style.width = undefined
+                // sum_left += arr_x[x]+1
+            }
             x++
         }
 
@@ -251,8 +284,8 @@ class App{
             console.log('[add_task]',obj)
             if(obj.type == '') obj.type = null
             obj.id = null
-            fetch('./api/task/add',{
-                method:'post',
+            fetch('./a/task',{
+                method:'PUT',
                 body:JSON.stringify(obj)
             }).then(d=>{
                 console.log(d)
@@ -269,8 +302,8 @@ class App{
             if(obj.type == '') obj.type = null
             obj.id = null
             obj.ended = Number(obj.ended)
-            fetch('./api/process/add',{
-                method:'post',
+            fetch('./a/process',{
+                method:'PUT',
                 body:JSON.stringify(obj)
             }).then(d=>{
                 console.log(d)
@@ -310,8 +343,8 @@ class App{
                 data.taskid = obj.taskid
                 data.ended = Number(data.ended)
                 console.log('d confted',data)
-                fetch('./api/process/edit',{
-                    method:'post',
+                fetch(`./a/process/${obj.id}`,{
+                    method:'PATCH',
                     body:JSON.stringify(data)
                 }).then(d=>{
                     console.log(d)
@@ -326,5 +359,38 @@ class App{
 
         }
 
+    }
+
+    x_scrool_header_move(){
+        
+        const d = txt=>document.getElementById(txt)
+        const scrollLeft =  document.getElementById('mytalbe_data').scrollLeft
+        const {arr_sum_x, arr_x, arr_head_x} = this.get_all_cell_size()
+        const leftwidth = d('mytable_side').children[0].clientWidth
+
+
+        let x=0;
+        // let sum_left = 0
+        console.log('[arr_x]',arr_x, arr_sum_x)
+        for(const ele of d('mytable_task').children){
+            ele.style.left = arr_sum_x[x]-scrollLeft+'px'
+            if(arr_x[x] > arr_head_x[x]){
+                console.log('wrd',(arr_x[x]-8)+'px')
+                ele.style.width = (arr_x[x]-8)+'px'
+                // sum_left += arr_x[x]
+            }
+            else {
+                // ele.style.width = ''//undefined
+                // sum_left += arr_x[x]+1
+            }
+            x++
+        }
+    }
+
+    screen_resize(){
+        console.log('res')
+        const d = txt=>document.getElementById(txt)
+        d('mytalbe_data').style.width = d('mytable_body').clientWidth - d('mytable_side').clientWidth+'px'
+        this.x_scrool_header_move()
     }
 }

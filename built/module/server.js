@@ -40,191 +40,175 @@ exports.httpserver = void 0;
 var HTTP = require("http");
 var db_1 = require("./db");
 var server_fn_1 = require("./server_fn");
+var httptree_1 = require("httptree");
+var login_1 = require("./login");
 //tsc --target "es6" --module "commonjs"  module/server.ts
 var port = 80;
-var path = __dirname + "\\..\\..";
+var path = "".concat(__dirname, "\\..\\..");
+var hp = new httptree_1.Server();
+hp.get(function (req, res, obj) { return res.sendFile(path + '\\public\\index.html'); });
+hp.p('s').p('*').get(function (req, res, obj) { return res.sendFile(path + '\\public\\static\\' + req.lastSubPath); });
+hp.p('i').p('*').get(function (req, res, obj) { return res.sendFile(path + '\\public\\images\\' + req.lastSubPath); });
+var $a = hp.p('a');
+var $task = $a.p('task');
+$task.get(function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { var _a, _b; return __generator(this, function (_c) {
+    switch (_c.label) {
+        case 0:
+            _b = (_a = res).send;
+            return [4 /*yield*/, db_1.taskdb.get_tasklist()];
+        case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
+    }
+}); }); });
+$task.put(function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    db_1.taskdb.add_task(req.body());
+    res.statusCode = 201;
+    res.send('ok');
+    return [2 /*return*/];
+}); }); });
+$task.patch(function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    db_1.taskdb.edit_task(req.body());
+    res.send('ok');
+    return [2 /*return*/];
+}); }); });
+$task["delete"](function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    db_1.taskdb.del_task(req.body());
+    res.send('ok');
+    return [2 /*return*/];
+}); }); });
+var $process = $a.p('process');
+$process.get(function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { var _a, _b; return __generator(this, function (_c) {
+    switch (_c.label) {
+        case 0:
+            _b = (_a = res).send;
+            return [4 /*yield*/, db_1.taskdb.get_processlist_all()];
+        case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
+    }
+}); }); });
+$process.p(/\d+/).get(function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { var _a, _b; return __generator(this, function (_c) {
+    switch (_c.label) {
+        case 0:
+            _b = (_a = res).send;
+            return [4 /*yield*/, db_1.taskdb.get_processlist_bytaskid(Number(req.lastSubPath))];
+        case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
+    }
+}); }); });
+$process.put(function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    db_1.taskdb.add_process(req.body());
+    res.statusCode = 201;
+    res.send('ok');
+    return [2 /*return*/];
+}); }); });
+$process.p(/\d+/).patch(function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    console.log('pppppp');
+    db_1.taskdb.edit_process(Number(req.lastSubPath), req.body());
+    res.send('ok');
+    return [2 /*return*/];
+}); }); });
+$process.p(/\d+/)["delete"](function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    db_1.taskdb.del_process(Number(req.lastSubPath));
+    res.send('ok');
+    return [2 /*return*/];
+}); }); });
+var $memo = $a.p('memo');
+$memo.p(/\d+/).get(function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { var _a, _b; return __generator(this, function (_c) {
+    switch (_c.label) {
+        case 0:
+            _b = (_a = res).send;
+            return [4 /*yield*/, db_1.taskdb.get_memo(Number(req.lastSubPath))];
+        case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
+    }
+}); }); });
+$memo.put(function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    db_1.taskdb.add_memo(req.body());
+    res.statusCode = 201;
+    res.send('ok');
+    return [2 /*return*/];
+}); }); });
+$memo.p(/\d+/).patch(function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    db_1.taskdb.edit_memo(Number(req.lastSubPath), req.body());
+    res.send('ok');
+    return [2 /*return*/];
+}); }); });
+$memo.p(/\d+/)["delete"](function (req, res, obj) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+    db_1.taskdb.del_memo(Number(req.lastSubPath));
+    res.send('ok');
+    return [2 /*return*/];
+}); }); });
+// $task.get(async (req,res,obj)=>res.send(await taskdb.get_tasklist()))
+// $task.get(async (req,res,obj)=>res.send(await taskdb.get_tasklist()))
+// .get((req,res,data,obj)=>res.sendFile(path+'\\public\\index.html'))
 exports.httpserver = HTTP.createServer(function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, method, url_arr, _a;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0:
-                url = req.url;
-                method = req.method;
-                url_arr = typeof (url) == 'string' ? url.split('/') : [];
-                console.log('[' + method + ']', '[url]', url, url_arr);
-                if (!(method == 'GET')) return [3 /*break*/, 9];
-                _a = url_arr[1];
-                switch (_a) {
-                    case '': return [3 /*break*/, 1];
-                    case 'static': return [3 /*break*/, 3];
-                    case 'images': return [3 /*break*/, 5];
-                }
-                return [3 /*break*/, 7];
-            case 1: return [4 /*yield*/, (0, server_fn_1.sendfile)(res, path + '\\public\\index.html', 'utf8', '', undefined)];
-            case 2:
-                _b.sent();
-                return [3 /*break*/, 8];
-            case 3: return [4 /*yield*/, (0, server_fn_1.sendfile)(res, path + '\\public' + url, 'utf8', '', undefined)];
-            case 4:
-                _b.sent();
-                return [3 /*break*/, 8];
-            case 5: return [4 /*yield*/, (0, server_fn_1.sendfile)(res, path + '\\public' + url, '', '', undefined)];
-            case 6:
-                _b.sent();
-                return [3 /*break*/, 8];
-            case 7:
-                (0, server_fn_1._404)(res, url, "task-default");
-                _b.label = 8;
-            case 8: return [3 /*break*/, 10];
-            case 9:
-                if (method == 'POST') {
-                    (0, server_fn_1.POST)(req, res, function (res, buffer) { return __awaiter(void 0, void 0, void 0, function () {
-                        var req_data, _a, data, _b, _c, _d, _e, err_1;
-                        return __generator(this, function (_f) {
-                            switch (_f.label) {
-                                case 0:
-                                    console.log('POST', buffer === null || buffer === void 0 ? void 0 : buffer.length);
-                                    if (!buffer) {
-                                        (0, server_fn_1._404)(res, url, { name: "POST buffer가 비었음" });
-                                        return [2 /*return*/];
-                                    }
-                                    try {
-                                        req_data = buffer.length ? JSON.parse(buffer.toString()) : {};
-                                    }
-                                    catch (err) {
-                                        (0, server_fn_1._404)(res, url, { name: "POST json 변환오류", err: err });
-                                        return [2 /*return*/];
-                                    }
-                                    _a = url_arr[1];
-                                    switch (_a) {
-                                        case 'api': return [3 /*break*/, 1];
-                                    }
-                                    return [3 /*break*/, 43];
-                                case 1:
-                                    data = true;
-                                    _f.label = 2;
-                                case 2:
-                                    _f.trys.push([2, 41, , 42]);
-                                    _b = url_arr[2];
-                                    switch (_b) {
-                                        case 'task': return [3 /*break*/, 3];
-                                        case 'process': return [3 /*break*/, 14];
-                                        case 'memo': return [3 /*break*/, 27];
-                                        case 'image': return [3 /*break*/, 38];
-                                    }
-                                    return [3 /*break*/, 39];
-                                case 3:
-                                    _c = url_arr[3];
-                                    switch (_c) {
-                                        case 'add': return [3 /*break*/, 4];
-                                        case 'edit': return [3 /*break*/, 6];
-                                        case 'del': return [3 /*break*/, 8];
-                                        case 'getlist': return [3 /*break*/, 10];
-                                    }
-                                    return [3 /*break*/, 12];
-                                case 4: return [4 /*yield*/, db_1.taskdb.add_task(req_data)];
-                                case 5:
-                                    _f.sent();
-                                    return [3 /*break*/, 13];
-                                case 6: return [4 /*yield*/, db_1.taskdb.edit_task(req_data)];
-                                case 7:
-                                    _f.sent();
-                                    return [3 /*break*/, 13];
-                                case 8: return [4 /*yield*/, db_1.taskdb.del_task(req_data.taskid)];
-                                case 9:
-                                    _f.sent();
-                                    return [3 /*break*/, 13];
-                                case 10: return [4 /*yield*/, db_1.taskdb.get_tasklist()];
-                                case 11:
-                                    data = _f.sent();
-                                    return [3 /*break*/, 13];
-                                case 12: throw ("task-default 1");
-                                case 13: return [3 /*break*/, 40];
-                                case 14:
-                                    _d = url_arr[3];
-                                    switch (_d) {
-                                        case 'add': return [3 /*break*/, 15];
-                                        case 'edit': return [3 /*break*/, 17];
-                                        case 'del': return [3 /*break*/, 19];
-                                        case 'getlist': return [3 /*break*/, 21];
-                                        case 'getlist_task': return [3 /*break*/, 23];
-                                    }
-                                    return [3 /*break*/, 25];
-                                case 15: return [4 /*yield*/, db_1.taskdb.add_process(req_data)];
-                                case 16:
-                                    _f.sent();
-                                    return [3 /*break*/, 26];
-                                case 17: return [4 /*yield*/, db_1.taskdb.edit_process(req_data)];
-                                case 18:
-                                    _f.sent();
-                                    return [3 /*break*/, 26];
-                                case 19: return [4 /*yield*/, db_1.taskdb.del_process(req_data.processid)];
-                                case 20:
-                                    _f.sent();
-                                    return [3 /*break*/, 26];
-                                case 21: return [4 /*yield*/, db_1.taskdb.get_processlist_all()];
-                                case 22:
-                                    data = _f.sent();
-                                    return [3 /*break*/, 26];
-                                case 23: return [4 /*yield*/, db_1.taskdb.get_processlist_bytaskid(req_data.taskid)];
-                                case 24:
-                                    data = _f.sent();
-                                    return [3 /*break*/, 26];
-                                case 25: throw ("task-default 2");
-                                case 26: return [3 /*break*/, 40];
-                                case 27:
-                                    _e = url_arr[3];
-                                    switch (_e) {
-                                        case 'add': return [3 /*break*/, 28];
-                                        case 'edit': return [3 /*break*/, 30];
-                                        case 'del': return [3 /*break*/, 32];
-                                        case 'get': return [3 /*break*/, 34];
-                                    }
-                                    return [3 /*break*/, 36];
-                                case 28: return [4 /*yield*/, db_1.taskdb.add_memo(req_data)];
-                                case 29:
-                                    _f.sent();
-                                    return [3 /*break*/, 37];
-                                case 30: return [4 /*yield*/, db_1.taskdb.edit_memo(req_data)];
-                                case 31:
-                                    _f.sent();
-                                    return [3 /*break*/, 37];
-                                case 32: return [4 /*yield*/, db_1.taskdb.del_memo(req_data.memoid)];
-                                case 33:
-                                    _f.sent();
-                                    return [3 /*break*/, 37];
-                                case 34: return [4 /*yield*/, db_1.taskdb.get_memo(req_data.memoid)];
-                                case 35:
-                                    data = _f.sent();
-                                    return [3 /*break*/, 37];
-                                case 36: throw ("task-default 3");
-                                case 37: return [3 /*break*/, 40];
-                                case 38: return [3 /*break*/, 40];
-                                case 39: throw ("task-default 4");
-                                case 40:
-                                    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf8' });
-                                    res.end(JSON.stringify(data));
-                                    return [3 /*break*/, 42];
-                                case 41:
-                                    err_1 = _f.sent();
-                                    (0, server_fn_1._404)(res, url, { name: 'err server get', err: err_1 });
-                                    return [3 /*break*/, 42];
-                                case 42: return [3 /*break*/, 44];
-                                case 43:
-                                    (0, server_fn_1._404)(res, url, "default 5");
-                                    _f.label = 44;
-                                case 44: return [2 /*return*/];
-                            }
-                        });
-                    }); });
-                }
-                else
-                    (0, server_fn_1._404)(res, url, 'method not allowed');
-                _b.label = 10;
-            case 10: return [2 /*return*/];
-        }
+    var url, method, url_arr, login;
+    return __generator(this, function (_a) {
+        url = req.url;
+        method = req.method;
+        url_arr = typeof (url) == 'string' ? url.split('/') : [];
+        console.log('[' + method + ']', '[url]', url, url_arr);
+        login = (0, login_1.loginParse)(req, res);
+        console.log('logpas - after', login);
+        if (login == true)
+            return [2 /*return*/];
+        if (hp.parse(req, res, { userID: login == false ? 1 : login.userID }))
+            return [2 /*return*/]; //_404(res,'dd','err!!')
+        console.log('llll');
+        // if(method=='GET') 
+        // switch (url_arr[1]){
+        //     case '': await sendfile(res,path+'\\public\\index.html','utf8','',undefined); break;
+        //     case 'static': await sendfile(res,path+'\\public'+url,'utf8','',undefined); break;
+        //     case 'images': await sendfile(res,path+'\\public'+url,'','',undefined); break;
+        //     default: _404(res,url,"task-default");
+        // }else if(method=='POST'){POST(req,res, async(res:HTTP.ServerResponse, buffer:Buffer)=>{
+        //     console.log('POST',buffer?.length)
+        //     if(!buffer){_404(res,url,{name:"POST buffer가 비었음"}); return}
+        //     let req_data:any
+        //     try{req_data = buffer.length ? JSON.parse(buffer.toString()) : {}
+        //     }catch(err){_404(res,url,{name:"POST json 변환오류",err}); return;}
+        //     switch (url_arr[1]){
+        //         case 'a':
+        //             let data:object|boolean = true
+        //             try{
+        //                 switch(url_arr[2]){
+        //                 case 'task':
+        //                     switch(url_arr[3]){
+        //                         case 'add': await taskdb.add_task(req_data); break;
+        //                         case 'edit': await taskdb.edit_task(req_data); break;
+        //                         case 'del': await taskdb.del_task(req_data.taskid); break;
+        //                         case 'getlist': data = await taskdb.get_tasklist(); break;
+        //                         default: throw("task-default 1");
+        //                     } break;
+        //                 case 'process':
+        //                     switch(url_arr[3]){
+        //                         case 'add': await taskdb.add_process(req_data); break;
+        //                         case 'edit': await taskdb.edit_process(req_data); break;
+        //                         case 'del': await taskdb.del_process(req_data.processid); break;
+        //                         case 'getlist': data = await taskdb.get_processlist_all(); break;
+        //                         case 'getlist_task': data = await taskdb.get_processlist_bytaskid(req_data.taskid); break;
+        //                         default: throw("task-default 2");
+        //                     }break;
+        //                 case 'memo':
+        //                     switch(url_arr[3]){
+        //                         case 'add': await taskdb.add_memo(req_data); break;
+        //                         case 'edit': await taskdb.edit_memo(req_data); break;
+        //                         case 'del': await taskdb.del_memo(req_data.memoid); break;
+        //                         case 'get': data = await taskdb.get_memo(req_data.memoid); break;
+        //                         default: throw("task-default 3");
+        //                     }break;
+        //                 case 'image':
+        //                     break;
+        //                 default: throw("task-default 4");
+        //                 }
+        //                 res.writeHead(200, { 'Content-Type': 'application/json; charset=utf8' });
+        //                 res.end(JSON.stringify(data))
+        //             }catch(err){
+        //                 _404(res,url,{name:'err server get',err})
+        //             }break;
+        //         default: _404(res,url,"default 5");
+        //     }})
+        // }else 
+        (0, server_fn_1._404)(res, url, ' not allowed');
+        return [2 /*return*/];
     });
-}); }).listen(port, function () { return console.log("server is running at localhost:" + port); });
+}); }).listen(port, function () { return console.log("server is running at localhost:".concat(port)); });
 // taskdb.add_task({ id: null, name: "시험", type: null }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
 // taskdb.add_task({ id: null, name: "밥", type: null }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });
 // taskdb.add_task({ id: null, name: "잠", type: null }).then(function (d) { return console.log('d',d); })["catch"](function (err) { return console.error(err); });

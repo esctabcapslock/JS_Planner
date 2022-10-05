@@ -5,7 +5,8 @@
 }
 
 #mytable_body{
-  display: block;
+  /* display: block; */
+  display: flex;
   position: relative;
 }
 #mytable_body>div{
@@ -16,6 +17,8 @@
 }
 #mytalbe_data{
   left: 120px;
+  overflow-x: scroll;
+  width: 100vh;
 }
 #mytable_body>div>div{
   display: table-row;
@@ -45,6 +48,7 @@ background-color: rgb(255, 202, 202);
   position: relative;
   display: block;
   min-height: 27px;
+  overflow-x: hidden;
 }
 #mytable_header>div{
   display: inline-block;
@@ -58,6 +62,8 @@ background-color: rgb(255, 202, 202);
 padding: 2px 4px;
 margin: 0;
 border: 1px solid rgba(0,0,0,0.3);
+z-index: 1;
+background-color: white;
 }
 #mytable_task{
 display: table-row;
@@ -71,6 +77,14 @@ display: table-cell;
   border-left: 0;
   min-width: 30px;
   white-space : nowrap;
+  position: absolute;
+}
+
+
+#mytable_body {
+  height: 80vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .process{

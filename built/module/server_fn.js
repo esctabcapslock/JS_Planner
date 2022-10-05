@@ -48,7 +48,7 @@ function sendfile(res, url, encode, file_type, range) {
                     res.writeHead((end == stats.size) ? 206 : 206, {
                         'Content-Type': file_type,
                         'Accept-Ranges': 'bytes',
-                        'Content-Range': "bytes " + start + "-" + end + "/" + stats.size,
+                        'Content-Range': "bytes ".concat(start, "-").concat(end, "/").concat(stats.size),
                         'Content-Length': end - start + 1
                     });
                     readStream.pipe(res);
