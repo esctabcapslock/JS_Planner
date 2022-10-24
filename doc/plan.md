@@ -105,3 +105,115 @@ tsc; node built/app
 ### 타입스크립트
 - [컴파일러](https://medium.com/jspoint/typescript-compilation-the-typescript-compiler-4cb15f7244bc)
 - [TS 전반](https://joshua1988.github.io/ts/guide/interfaces.html)
+
+
+## 서비스 구조
+
+- 암호화해서 보관
+- *개인 데이터는 서버에서 무결성 검증 안 할 것*
+    - 프론트엔드 코드 틀리면 데이터 날라감
+        - XSS, 중간자 공격 등에 취약
+    - 서버는 유저의 내용을 알기 힘들다.
+    - *모두 백업* 기능을 만들것
+
+### AWS RDS 데이터베이스
+- 암호화해서 보관
+- 암호화된 내용은 _ 붙이기
+- 그냥 body 속성을 만든 뒤, 그 안에 json같은 형식을 저장
+
+- 과업 (task)
+    - id
+    - userId
+    - _유형 (str)
+    - _이름 (str)
+
+- 과정 (process)
+    - id
+    - userId
+    - 알림시각 (date/none) 안내 메시지 발송용 시각.
+    - _이름 (str)
+    - _유형 (str/none)
+    - _시각 (date/none)
+    - _taskId
+    - _메모 연결 링크 
+
+- 메모
+    - id
+    - userId (삭제를 위함)
+    - _기록한 글들 (마크다운 기반)
+
+- 파일(이미지 포함)
+    - filename
+    - uesrId  (삭제 위함)
+    - file_size (사용자별 사용량 측정하기 위함)
+
+- 유저
+    - userId
+    - email
+        - 특정 도메인만 허용
+    - encrypted_pw
+    - 인증 여부
+
+
+
+
+### E2C 서버 - 클라이언트 로직구성
+- restFull하게 구성
+- https위에서 전송되므로 암호화는 구성하지 않는다.
+
+- 회원가입
+    - 입력값
+        - email
+        - pw
+    - 전송값
+        - email
+        - SHA512(pw)
+        - SHW512('info'+pw)
+
+    - 서버 생성값
+        - 고유한 userID 생성할 것
+        - 인증 여부 = true일 경우
+            - 파일에 [받은 info file 이름].csv, setting.json 파일 생성
+            - 클라이언트의 요청으로 생기게 함
+        - taskId, startDate, endDate 순으로 구성됨
+
+    - 이메일 인증 관련
+        - txt 파일 만들기
+        - userId - 생성일시 - 인증 key로 생성
+        - 간단한 숫자 6자리 정도로 설정.
+        - 시간 지난 피일은 자동 삭제.
+
+
+- 로그인
+     입력값
+        - email
+        - pw
+    - 전송값
+        - email
+        - SHA512(pw)
+    - 2-facter 인증 지원시, 이메일 코드 입력해야 함.
+    - 세션
+        - key - userId - date 순으로
+        - 시간 제한 둘 것
+
+- 이메일 주소 변경
+
+- 읽어버린 비번 찾기
+    - 내용물 못 찾음
+
+- 회원 탈퇴
+
+- 메인페이지 접속
+    - 로그인 하기.
+    - 성공 가정
+    - task 총 목록 요청
+    - setting.json 요청하기
+    - [받은 info file 이름].csv 요청
+        - 이를 바탕으로 process 요청
+        - 1달 이내로 보여주기
+
+    - 파일에 대해 CRUD 모두 가능하게 하기.
+    - task는 pw 기반으로 암호화하기.
+    - process는 pw 기반을 바탕으로 한 무언가로 하기
+    
+
