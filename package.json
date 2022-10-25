@@ -4,13 +4,18 @@
   "description": "자바스크립트 기반 일정 관리 프로그램",
   "main": "app.ts",
   "scripts": {
-    "test": "tsc\nnode built/app.js rem 이거 작동안됨"
+    "test": "ts-node src/app"
   },
   "author": "esctabcapslock",
   "license": "ISC",
   "dependencies": {
+    "bootstrap": "^5.2.2",
+    "sqlite3": "^5.0.2",
+    "httptree": "^0.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.4",
     "@types/sqlite3": "^3.1.8",
-    "httptree": "^0.0.2",
-    "sqlite3": "^5.0.2"
+    "ts-node": "^10.9.1"
   }
 }
