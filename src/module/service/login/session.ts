@@ -39,6 +39,12 @@ export class Session<data>{
         return str
     }
 
+
+    changeLoginData(key:string, data:null|SessionLoginData){
+        if(!this.sessionDict[key]) throw('존재하지 않는 key')
+        this.sessionDict[key].login = data
+    }
+
     delOverMaxAge(){
         for(const key in this.sessionDict){
             if(this.sessionDict[key].maxAge < new Date()) delete this.sessionDict[key]
@@ -46,9 +52,11 @@ export class Session<data>{
     }
 }
 
-interface SessionData {
-    login: null | {
-        userID: number,
-    }
+export interface SessionData {
+    login: null | SessionLoginData
     maxAge:Date
+}
+
+interface SessionLoginData{
+    userID: number,
 }

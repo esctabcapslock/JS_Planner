@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,10 +13,10 @@
 </head>
 <body>
     
-    <form id="login_form" method="post" action="/a/auth/login" novalidate=false>
-        <input name="email" type="email" placeholder="username@example.com" minlength="3">
+    <form id="login_form" method="post" action="/a/auth/login" novalidate=true>
+        <input required name="email" type="email" placeholder="username@example.com" minlength="3">
         <input type="password" id="password_input" pattern="^[A-Za-z\d$@$!%*#?&]{8,}$" placeholder="password">
-        <input name="pw" type="hidden" id="password_output">
+        <input required name="pw" type="hidden" id="password_output">
         <button type="submit" id="login_submit">로그인</button>
     </form>
     <div>

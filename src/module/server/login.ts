@@ -1,13 +1,14 @@
 import {Server, addon} from "httptree"
 import { IncomingMessage, ServerResponse } from "http";
-import {Session} from "./session"
+import { login, session } from "../service/login/"
 import { thisProgramPath } from "../const";
 import { _302, _403 } from "./server_fn";
-const querystring = require('querystring');
+import querystring = require('querystring');
+import { SessionData } from "../service/login/session";
 
 
-const session = new Session('login_session')
-const loginServer = new Server()
+
+const loginServer = new Server<string>()
 const $auth = loginServer.p('a').p('auth')
 
 
@@ -18,7 +19,20 @@ loginServer.p('login').get((req,res,obj)=>{
 
 
 $auth.p('login').post((req,res,obj)=>{
-    const {email, pw} = querystring(req.body('string'))
+    console.log('login-post')
+    const {email, pw} = querystring.parse(req.body('string'))
+    console.log('login - post')
+    if(login.login(email.toString(),pw.toString(), obj)){ // 로그인 성공
+        console.log('로그인 관련')
+        res.statusCode = 302
+        res.setHeader('Location','/')
+        res.send('')
+    }else{
+        // 로그인 실패
+        res.setHeader('Content-Type','text/html; charset=utf-8') 
+        res.send('<script>alert("Login failed"); location="/login"</script>')
+    }
+    
     
 })
 
@@ -32,8 +46,8 @@ $auth.p('addinfo').post((req,res,obj)=>{
 
 
 // 로그인서버로 보내는 트래픽의 경우. 로그인서버에서 논리 처리가 종결되어야 한다.
-function loginServer_preParse(req:IncomingMessage,res:ServerResponse):true{
-    if(loginServer.parse(req,res,undefined)) return true
+function loginServer_preParse(req:IncomingMessage,res:ServerResponse, sessionData:string):true{
+    if(loginServer.parse(req,res,sessionData)) return true
     
     // 메인 페이지 요청시 리다이렉트 시킵니다.
     else if(`${req.url}` == '/'){
@@ -55,8 +69,9 @@ export const loginParse = (req:IncomingMessage,res:ServerResponse)=>{
 
     // 세전 정보가 없으므로 세션 정보를 추가합니다.
     if(!sessionRawData) {
-        res.setHeader('Set-Cookie', [`session=${session.new()}; Max-Age=${session.maxAge}; SameSite=Strict; HttpOnly; `])
-        return loginServer_preParse(req,res)
+        const newSession = session.new()
+        res.setHeader('Set-Cookie', [`session=${newSession}; Max-Age=${session.maxAge}; SameSite=Strict; HttpOnly; `])
+        return loginServer_preParse(req,res, newSession)
     }
     
     
@@ -66,12 +81,13 @@ export const loginParse = (req:IncomingMessage,res:ServerResponse)=>{
     // 세션 정보를 받아오는데 실패한 경우입니다.
     if(session_parsed==null){
         console.error('세션 정보를 받아오는데 실패')
-        res.setHeader('Set-Cookie', [`session=${session.new()}; Max-Age=${session.maxAge}; SameSite=Strict; HttpOnly; `])
-        return loginServer_preParse(req,res)
+        const newSession = session.new()
+        res.setHeader('Set-Cookie', [`session=${newSession}; Max-Age=${session.maxAge}; SameSite=Strict; HttpOnly; `])
+        return loginServer_preParse(req,res, newSession)
     }
 
     // 아직 로그인하지 않은 경우입니다.
-    if(session_parsed.login===null)  return loginServer_preParse(req,res)
+    if(session_parsed.login===null)  return loginServer_preParse(req,res,sessionRawData)
     
     // 로그인한 경우입니다.
     else return session_parsed.login

@@ -2,6 +2,7 @@
 import { Server } from "httptree"
 import {taskdb, imagedb, Task, interfaceOfTask}  from "../db"
 import { thisProgramPath } from "../const"
+import { uploadFile } from "../service/file"
 
 export const serviceServer = new Server<{userID:number}>() // 유저 파일 전송
 
@@ -29,3 +30,9 @@ $memo.put            (async (req,res,obj)=>{taskdb.add_memo(req.body());res.stat
 $memo.p(/\d+/).patch (async (req,res,obj)=>{taskdb.edit_memo(Number(req.lastSubPath), req.body());res.send('ok')})
 $memo.p(/\d+/).delete(async (req,res,obj)=>{taskdb.del_memo(Number(req.lastSubPath));res.send('ok')})
 
+
+
+const $file = $a.p('file')
+$file.post(async (req,res,obj)=>{
+    res.send(await uploadFile.push_file(req.body('raw'), req.lastSubPath))
+})

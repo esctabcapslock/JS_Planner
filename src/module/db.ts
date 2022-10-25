@@ -389,7 +389,7 @@ class UserDB extends myDB{
         })
     }
 
-    async delect(id:number){
+    async delete(id:number){
         //TODO 삭제 구현하기
     }
 }

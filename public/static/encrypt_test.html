@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파일 암호화 테스트</title>
+</head>
+<body>
+    <form action="/a/file" method="post" enctype="multipart/form-data" target="_self">
+        <input  id="file_data" name="file_data" type="file">
+        <button type="submit">전송</button>
+    </form>
+
+
+    <script>
+
+// 키 분해와 해체
+        // _key = await window.crypto.subtle.generateKey(
+        // {
+        //     name: "AES-GCM",
+        //     length: 256
+        // },
+        // true,
+        // ["encrypt", "decrypt"]
+        // );
+        // await window.crypto.subtle.exportKey('jwk',_key)
+
+
+        const rawkey = {"alg":"A256CTR","ext":true,"k":"5QUifVWI2fk-Pv_gDZtmm2u0mE3fDyPMNlwV4KAqcNI","key_ops":["encrypt","decrypt"],"kty":"oct"}
+        // const rawkey = {"alg":"A256CTR","ext":true,"k":"5QUifVWI2fk-Pv_gDZtmm2u0mE3fDyPMNlwV4KAqcNI","key_ops":["encrypt","decrypt"],"kty":"oct"}
+        const keydata = crypto.subtle.importKey("jwk",rawkey,{name:'AES-CTR'},rawkey.ext, rawkey.key_ops )
+
+    </script>
+</body>
+</html>

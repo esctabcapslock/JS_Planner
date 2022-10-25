@@ -14,10 +14,11 @@ class App{
     }
     
     addEventListener(){
-        console.log('df')
         const $password_input = document.getElementById('password_input')
-        const $password_output = document.getElementById('password_output')
         $password_input.addEventListener('keydown',this.pwencrypt)
+        $password_input.addEventListener('change',this.pwencrypt)
+        $password_input.addEventListener('click',this.pwencrypt)
+        $password_input.addEventListener('load',this.pwencrypt)
     }
 
     async pwencrypt(){
