@@ -1,5 +1,5 @@
-import {createCipheriv,createDecipheriv,createHash} from 'crypto';
-const SHA512 = (txt:string)=> createHash('sha256').update(txt).digest('hex');
+import {createHash} from 'crypto';
+const SHA512 = (txt:string)=> createHash('sha512').update(txt).digest('hex');
 
 export class Session<data>{
     private sessionDict:{[key:string]:SessionData}

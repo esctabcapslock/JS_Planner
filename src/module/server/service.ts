@@ -10,8 +10,8 @@ export const serviceServer = new Server<{userID:number}>() // 유저 파일 전�
 serviceServer.get((req,res,obj)=>res.sendFile(thisProgramPath+'\\public\\index.html'))
 
 // api 코드
-const $a = serviceServer.p('a')
-const $task = $a.p('task')
+const $a = serviceServer.p('a');
+const $task = $a.p('task');
 $task.get(async (req,res,obj)=>res.send(await taskdb.get_tasklist()))
 $task.put(async (req,res,obj)=>{taskdb.add_task(req.body());res.statusCode = 201; res.send('ok')})
 $task.patch(async (req,res,obj)=>{taskdb.edit_task(req.body());res.send('ok')})
@@ -32,7 +32,11 @@ $memo.p(/\d+/).delete(async (req,res,obj)=>{taskdb.del_memo(Number(req.lastSubPa
 
 
 
-const $file = $a.p('file')
+const $file = $a.p('file');
 $file.post(async (req,res,obj)=>{
+    res.send(await uploadFile.push_file(req.body('raw')))
+})
+
+$file.p('*').post(async (req,res,obj)=>{
     res.send(await uploadFile.push_file(req.body('raw'), req.lastSubPath))
 })
