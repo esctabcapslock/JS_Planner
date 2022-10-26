@@ -59,11 +59,12 @@ function concatenate(...arrays) {
   // Build the new array
   let offset = 0
   for (let arr of arrays) {
+    if(arr instanceof ArrayBuffer) arr = new Uint8Array(arr)
     result.set(arr, offset)
     offset += arr.byteLength
   }
 
-  return result
+  return result.buffer
 }
 
 
@@ -118,8 +119,9 @@ async function pauseFile(){
         console.table({encoded,iv})
         await fetch('/a/file',{
             method:'POST',
-            body:concatenate(iv,encoded)
+            body:concatenate(iv,new Uint8Array(encoded))
         })
+        console.log(new Uint8Array(concatenate(iv,encoded)))
         return {iv, encoded}
     }
 

@@ -34,9 +34,15 @@ $memo.p(/\d+/).delete(async (req,res,obj)=>{taskdb.del_memo(Number(req.lastSubPa
 
 const $file = $a.p('file');
 $file.post(async (req,res,obj)=>{
-    res.send(await uploadFile.push_file(req.body('raw')))
+    res.send(await uploadFile.push_file(req.body('raw'), obj.userID))
 })
 
 $file.p('*').post(async (req,res,obj)=>{
-    res.send(await uploadFile.push_file(req.body('raw'), req.lastSubPath))
+    res.send(await uploadFile.push_file(req.body('raw'), obj.userID, req.lastSubPath))
+})
+
+$file.p('*').get(async (req,res,obj)=>{
+    const data =  uploadFile.get_file(obj.userID, req.lastSubPath)
+    if(data==null) res.throw(403,'존재하지 않는 파일', 'this file not exists') 
+    else res.send(data)
 })

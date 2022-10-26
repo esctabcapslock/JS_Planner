@@ -6,6 +6,7 @@ import { _404 } from "./server_fn"
 import { loginParse } from "./login"
 
 const port = 80;
+// console.log('process.env',process.env, process.argv)
 
 export const httpserver = HTTP.createServer(async (req: HTTP.IncomingMessage, res: HTTP.ServerResponse) => {
     const url: string | undefined = req.url;
@@ -15,24 +16,17 @@ export const httpserver = HTTP.createServer(async (req: HTTP.IncomingMessage, re
     
     if(staticServer.parse(req,res,undefined)) return
 
-    // 실제 서비스용
-    // -----------
-    /*
-    const login = loginParse(req,res)
-    console.log('logpas - after', login)
-    if(login==true) return
 
-
-    */
-   // ---------
-   
-   // teset용
-   const login = {userID:1}
-
-
-   if(serviceServer.parse(req,res,{userID:login.userID})) return //_404(res,'dd','err!!')
+    let login=undefined;
+    if(process.argv.includes('-dev')){ // 개발용. 로그인 안함/
+        login = {userID:1}
+    }else{ // 실제 커밋용. 로그인 해야함
+        login = loginParse(req,res)
+        console.log('logpas - after', login)
+        if(login==true) return
+    }
     
-
+    if(serviceServer.parse(req,res,{userID:login.userID})) return
 
     _404(res,url,' not allowed')
 

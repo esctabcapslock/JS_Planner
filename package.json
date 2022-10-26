@@ -4,7 +4,8 @@
   "description": "자바스크립트 기반 일정 관리 프로그램",
   "main": "app.ts",
   "scripts": {
-    "start": "ts-node src/app"
+    "start": "ts-node src/app",
+    "test": "ts-node src/app -dev"
   },
   "author": "esctabcapslock",
   "license": "ISC",
