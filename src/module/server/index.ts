@@ -2,7 +2,7 @@
 import * as HTTP from "http"
 import { serviceServer } from "./service";
 import { staticServer } from "./static";
-import { _404 } from "./server_fn"
+import { _404, _4xx } from "./server_fn"
 import { loginParse } from "./login"
 
 const port = 80;
@@ -10,6 +10,7 @@ const port = 80;
 
 export const httpserver = HTTP.createServer(async (req: HTTP.IncomingMessage, res: HTTP.ServerResponse) => {
     const url: string | undefined = req.url;
+    if(url.length>1024) return _4xx(414,res,'URI Too Long'); 
     const method: string | undefined = req.method;
     const url_arr: string[] = typeof (url) == 'string' ? url.split('/') : []
     console.log('['+method+']','[url]', url, url_arr)

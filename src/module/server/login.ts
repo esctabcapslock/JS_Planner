@@ -8,7 +8,10 @@ import { SessionData } from "../service/login/session";
 
 
 
-const loginServer = new Server<string>()
+const loginServer = new Server<string>(
+    undefined,
+    {payloadMaxSize:1024*1024} // 1MB 입력 재한
+)
 const $auth = loginServer.p('a').p('auth')
 
 

@@ -71,3 +71,8 @@ export function _302(res: HTTP.ServerResponse, path: string) {
     res.setHeader('Location',path)
     res.end('302 Found')
 } 
+
+export function _4xx(statusCode:number ,res: HTTP.ServerResponse, msg: string) {
+    res.statusCode = statusCode
+    res.end(msg)
+} 

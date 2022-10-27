@@ -4,7 +4,10 @@ import {taskdb, imagedb, Task, interfaceOfTask}  from "../db"
 import { thisProgramPath } from "../const"
 import { uploadFile } from "../service/file"
 
-export const serviceServer = new Server<{userID:number}>() // 유저 파일 전송
+export const serviceServer = new Server<{userID:number}>(
+    undefined,
+    {payloadMaxSize:1024*1024*18} // 18MB 입력 재한
+) // 유저 파일 전송
 
 // 기초적 파일 호스팅
 serviceServer.get((req,res,obj)=>res.sendFile(thisProgramPath+'\\public\\index.html'))
