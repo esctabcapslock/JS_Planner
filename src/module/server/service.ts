@@ -4,13 +4,26 @@ import { Server } from "httptree"
 import { thisProgramPath } from "../const"
 import { uploadFile } from "../service/file"
 
-export const serviceServer = new Server<{userID:number}>(
+type serviceServerOption = {userID:number}
+
+export const serviceServer = new Server<serviceServerOption>(
     undefined,
     {payloadMaxSize:1024*1024*18} // 18MB 입력 재한
 ) // 유저 파일 전송
 
 // 기초적 파일 호스팅
 serviceServer.get((req,res,obj)=>res.sendFile(thisProgramPath+'\\public\\index.html'))
+
+// 특정 페이지로 리다이랙트하기
+const mainPageRedirect = (path:string)=>(req,res,obj:serviceServerOption)=>{
+    res.statusCode = 302
+    res.setHeader('Location',path)
+    res.send('302 Found')
+}
+
+// 로그인 요청시 메인으로 리다이렉트
+serviceServer.p('login').get(mainPageRedirect('/'))
+serviceServer.p('signin').get(mainPageRedirect(''))
 
 // api 코드
 const $a = serviceServer.p('a');

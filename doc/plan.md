@@ -149,7 +149,7 @@ tsc; node built/app
 
 - 파일(이미지 포함)
     - filename
-    - uesrId  (삭제 위함)
+    - userId  (삭제 위함)
     - file_size (사용자별 사용량 측정하기 위함)
 
 - 유저

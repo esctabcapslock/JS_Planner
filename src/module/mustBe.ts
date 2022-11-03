@@ -36,6 +36,12 @@ export const mustUnixDateNum: (x:any)=>Date = x=>{
     return new Date(x)
 }
 
+export const mustDateOrUnixDateNum: (x:any)=>Date = x=>{
+    if(x instanceof Date) return x
+    if(!Number.isInteger(x)) throw(`[mustUnixDateNum] ${x}는 정수가 아님`)
+    return new Date(x)
+}
+
 export const mustBool: (x:any)=>boolean = x=>{
     if(typeof x !== 'boolean') throw(`[mustBool] ${x}는 bool이 아님`)
     return x
@@ -120,6 +126,13 @@ export const mustIntArrN: (x:any)=>string[] = x=>{
 
 export const mustUnixDateNumN: (x:any)=>Date|null = x=>{
     if(x===undefined || x===null) return null
+    if(!Number.isInteger(x)) throw(`[mustUnixDateNumN] ${x}는 정수가 아님`)
+    return new Date(x)
+}
+
+export const mustDateOrUnixDateNumN: (x:any)=>Date|null = x=>{
+    if(x===undefined || x===null) return null
+    if(x instanceof Date) return x
     if(!Number.isInteger(x)) throw(`[mustUnixDateNumN] ${x}는 정수가 아님`)
     return new Date(x)
 }

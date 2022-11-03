@@ -6,11 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입</title>
     <link href="/s/login.css" rel="stylesheet">
-    <script src="s/signup.js"></script>
+    <script src="s/login.js"></script>
     <script src="/s/bootstrap/js/bootstrap.min.js"></script>
     <link href="/s/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    회원가입
+<body class="bg-light">
+    <div class="container-fluid">
+        <header class="py-5 text-center">
+            <h1>회원가입</h1>
+        </header>
+        <main class="container  mt-5  px-lg-5">
+            <div class="row">
+                <div class="w-100 p-4 d-flex justify-content-center pb-4">
+                    <div class="text-center">
+                        <form id="login_form" method="post" action="/a/auth/signup">
+                            <div class="form-outline mb-4">
+                                <input class="form-control" required name="email" type="email"
+                                    placeholder="username@example.com" minlength="3">
+                            </div>
+                            <div class="form-outline mb-4">
+                                <input class="form-control" type="password" id="password_input"
+                                    pattern="^[A-Za-z\d$@$!%*#?&]{8,}$" placeholder="password">
+                            </div>
+                            <input required name="pw" type="hidden" id="password_output">
+                            <button class="btn btn-primary btn-block mb-4   " type="submit"
+                                id="login_submit">회원가입</button>
+                        </form>
+                        <a class="btn btn-primary" href="login">로그인</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const app = new App();
+    </script>
 </body>
+
 </html>

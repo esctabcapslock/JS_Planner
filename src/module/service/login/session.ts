@@ -1,5 +1,5 @@
 import {createHash} from 'crypto';
-const SHA256 = (txt:string)=> createHash('sha-256').update(txt).digest('base64url'); // 너무 긴가? md5만 할까?
+const SHA256 = (txt:string)=> createHash('sha256').update(txt).digest('base64url'); // 너무 긴가? md5만 할까?
 
 export class Session<data>{
     private sessionDict:{[key:string]:SessionData}
