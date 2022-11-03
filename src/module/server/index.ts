@@ -1,10 +1,10 @@
-
 import * as HTTP from "http"
 import { serviceServer } from "./service";
 import { staticServer } from "./static";
 import { _404, _4xx } from "./server_fn"
-import { loginParse } from "./login"
-
+import { loginServerParse } from "./login"
+import sql from "../db"
+sql;
 const port = 80;
 // console.log('process.env',process.env, process.argv)
 
@@ -22,7 +22,7 @@ export const httpserver = HTTP.createServer(async (req: HTTP.IncomingMessage, re
     if(process.argv.includes('-dev')){ // 개발용. 로그인 안함/
         login = {userID:1}
     }else{ // 실제 커밋용. 로그인 해야함
-        login = loginParse(req,res)
+        login = loginServerParse(req,res)
         console.log('logpas - after', login)
         if(login==true) return
     }

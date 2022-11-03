@@ -5,7 +5,8 @@
         // "outFile": "built/tsc.js",
         "module": "CommonJS",
         "moduleResolution":"Node",
-        "outDir": "built"
+        "outDir": "built",
+        "esModuleInterop": false //postgres 모듈의 호환성 때문
     },
     // "files": [
     //     "app.ts",
@@ -14,7 +15,8 @@
     "include": [
         "./src/module/*",
         "./src/app.ts",
-    ]
+    ],
+    
     
 
 

@@ -1,5 +1,5 @@
 import {createHash} from 'crypto';
-const SHA512 = (txt:string)=> createHash('sha512').update(txt).digest('hex'); // 너무 긴가? md5만 할까?
+const SHA256 = (txt:string)=> createHash('sha-256').update(txt).digest('base64url'); // 너무 긴가? md5만 할까?
 
 export class Session<data>{
     private sessionDict:{[key:string]:SessionData}
@@ -39,8 +39,8 @@ export class Session<data>{
      * 새로운 세션 값을 만듦니다
      */
     new():string{
-        let str = SHA512(this.salt+Math.random().toString()+(new Date()))
-        while (str in this.sessionDict) str = SHA512(this.salt+Math.random().toString()+(new Date()))
+        let str = SHA256(this.salt+Math.random().toString()+(new Date()))
+        while (str in this.sessionDict) str = SHA256(this.salt+Math.random().toString()+(new Date()))
 
         const data = {
             login:null,
@@ -68,6 +68,8 @@ export class Session<data>{
             if(this.sessionDict[key].maxAge < new Date()) delete this.sessionDict[key]
         }
     }
+
+    // TODO 만료 직전에 세션 자동 갱신
 }
 
 export interface SessionData {

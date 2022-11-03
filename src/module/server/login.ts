@@ -20,6 +20,11 @@ loginServer.p('login').get((req,res,obj)=>{
     res.sendFile(thisProgramPath+'\\public\\static\\login.html')
 })
 
+loginServer.p('signup').get((req,res,obj)=>{
+    console.log('signup')
+    res.sendFile(thisProgramPath+'\\public\\static\\signup.html')
+})
+
 
 $auth.p('login').post((req,res,obj)=>{
     console.log('login-post')
@@ -35,7 +40,6 @@ $auth.p('login').post((req,res,obj)=>{
         res.setHeader('Content-Type','text/html; charset=utf-8') 
         res.send('<script>alert("Login failed"); location="/login"</script>')
     }
-    
     
 })
 
@@ -66,7 +70,7 @@ function loginServer_preParse(req:IncomingMessage,res:ServerResponse, sessionDat
 
 
 // 로그인과 관련된 정보 처리
-export const loginParse = (req:IncomingMessage,res:ServerResponse)=>{
+export const loginServerParse = (req:IncomingMessage,res:ServerResponse)=>{
     const cookie = addon.parseCookie(req.headers['cookie'])
     const sessionRawData = cookie['session']
 

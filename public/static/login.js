@@ -2,7 +2,11 @@ const salt = 'gr34f'
 
 async function sha512(str) {
     const buf = await crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(str));
-    return Array.prototype.map.call(new Uint8Array(buf), x => (('00' + x.toString(16)).slice(-2))).join('');
+    // return Array.prototype.map.call(new Uint8Array(buf), x => (('00' + x.toString(16)).slice(-2))).join('');
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
 }
 
   
