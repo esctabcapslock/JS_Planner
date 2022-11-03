@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^5.2.2",
-    "sqlite3": "^5.0.2",
+    "postgres": "^3.3.1",
     "httptree": "^0.0.2"
   },
   "devDependencies": {

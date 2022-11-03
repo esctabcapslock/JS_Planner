@@ -1,6 +1,6 @@
 
 import { Server } from "httptree"
-import {taskdb, imagedb, Task, interfaceOfTask}  from "../db"
+// import {taskdb, imagedb, Task, interfaceOfTask}  from "../db"
 import { thisProgramPath } from "../const"
 import { uploadFile } from "../service/file"
 
@@ -14,6 +14,9 @@ serviceServer.get((req,res,obj)=>res.sendFile(thisProgramPath+'\\public\\index.h
 
 // api 코드
 const $a = serviceServer.p('a');
+
+/*
+// sqlite용 코드
 const $task = $a.p('task');
 $task.get(async (req,res,obj)=>res.send(await taskdb.get_tasklist()))
 $task.put(async (req,res,obj)=>{taskdb.add_task(req.body());res.statusCode = 201; res.send('ok')})
@@ -32,7 +35,7 @@ $memo.p(/\d+/).get   (async (req,res,obj)=>res.send(await taskdb.get_memo(Number
 $memo.put            (async (req,res,obj)=>{taskdb.add_memo(req.body());res.statusCode = 201; res.send('ok')})
 $memo.p(/\d+/).patch (async (req,res,obj)=>{taskdb.edit_memo(Number(req.lastSubPath), req.body());res.send('ok')})
 $memo.p(/\d+/).delete(async (req,res,obj)=>{taskdb.del_memo(Number(req.lastSubPath));res.send('ok')})
-
+*/
 
 
 const $file = $a.p('file');
