@@ -30,7 +30,7 @@
 - module/server.js: 클라이언트 - 서버 통신 
 -->
 
-#### AWS 이용
+### AWS 이용
 - AWS에 가입해 서버를 호스팅해보자
 - 회원가입 (04.01) 완료
 
@@ -108,6 +108,7 @@ tsc; node built/app
 ### 타입스크립트
 - [컴파일러](https://medium.com/jspoint/typescript-compilation-the-typescript-compiler-4cb15f7244bc)
 - [TS 전반](https://joshua1988.github.io/ts/guide/interfaces.html)
+- [postgres 모듈](https://www.npmjs.com/package/postgres)
 
 
 ## 서비스 구조
@@ -222,6 +223,23 @@ tsc; node built/app
     - task는 pw 기반으로 암호화하기.
     - process는 pw 기반을 바탕으로 한 무언가로 하기
     
+### 클라이언트 로직구성
+
+- 임시 저장 피일 - process 날짜가 적혀있음 - 쓸모없는거 안가져옴
+```js
+data = {
+    processId:date,
+    processId:date,
+    ...
+}
+```
+
+- 전체 task 목록을 가져옴 (GET /a/task)
+- 전체 process 목록을 가져옴 (POST /a/process/, body에 리스트 전달 include or exclude=[1,3,4,34,56,466])
+- 쓸모없는 process는 삭제토록 함.
+- 이를 바탕으로 GUI 생성
+    - task CRUD 기능
+    - process CRUD 기능
 
 ## QOS
 - 같은 ip, user agent에서 같은 페이지 초당 5회 이상
@@ -232,3 +250,11 @@ tsc; node built/app
 - abstract class block(until:date)
 - class blockedIP(ip:IP)
 - class blockedAgent(agent:string)
+
+## 할일
+
+1. 먼저 db 속성 수정하기
+2. 그리고 위에 표시된 순으로 api 만들기 확인
+3. 그리고 클라이언트 작성
+4. QOS 만들기
+5. 빌드

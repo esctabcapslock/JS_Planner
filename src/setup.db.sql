@@ -52,9 +52,10 @@ CREATE TABLE file(
 CREATE TABLE task(
     id SERIAL PRIMARY KEY,
     user_id integer references users NOT NULL,
-    name VARCHAR(128) NOT NULL,
-    type VARCHAR(128) DEFAULT NULL,
-    memo integer references file DEFAULT NULL
+    body VARCHAR(256) DEFAULT NULL
+    -- name VARCHAR(128) NOT NULL,
+    -- type VARCHAR(128) DEFAULT NULL,
+    -- memo integer references file DEFAULT NULL
 );
 
 
@@ -62,13 +63,14 @@ CREATE TABLE task(
 CREATE TABLE process(
     id SERIAL PRIMARY KEY,
     user_id integer references users NOT NULL,
-    task_id integer references task NOT NULL,
-    name VARCHAR(128) NOT NULL,
+    -- task_id integer references task NOT NULL,
+    -- name VARCHAR(128) NOT NULL,
     alert_time timestamp  DEFAULT NULL,
     alert_name VARCHAR(128) DEFAULT NULL,
-    start_date timestamp  NOT NULL,
-    start_time bool default false NOT NULL,
-    end_date timestamp  DEFAULT NULL,
-    end_time bool DEFAULT false NOT NULL,
-    memo integer references file DEFAULT NULL
+    body VARCHAR(256) DEFAULT NULL
+    -- start_date timestamp  NOT NULL,
+    -- start_time bool default false NOT NULL,
+    -- end_date timestamp  DEFAULT NULL,
+    -- end_time bool DEFAULT false NOT NULL,
+    -- memo integer references file DEFAULT NULL
 );
