@@ -44,7 +44,7 @@ ADD COLUMN timezone INT DEFAULT NULL;
 CREATE TABLE file(
     id SERIAL PRIMARY KEY,
     user_id integer references users NOT NULL,
-    save_name VARCHAR(128),
+    save_name VARCHAR(128) UNIQUE,
     size int NOT NULL,
     file_name VARCHAR(128) DEFAULT NULL
 );

@@ -54,11 +54,11 @@ $memo.p(/\d+/).delete(async (req,res,obj)=>{taskdb.del_memo(Number(req.lastSubPa
 
 const $file = $a.p('file');
 $file.post(async (req,res,obj)=>{
-    res.send(await uploadFile.push_file(req.body('raw'), obj.userID))
+    res.send({fileId: await uploadFile.push_file(req.body('raw'), obj.userID)})
 })
 
 $file.p('*').post(async (req,res,obj)=>{
-    res.send(await uploadFile.push_file(req.body('raw'), obj.userID, req.lastSubPath))
+    res.send({fileId: await uploadFile.push_file(req.body('raw'), obj.userID, req.lastSubPath)})
 })
 
 $file.p('*').get(async (req,res,obj)=>{

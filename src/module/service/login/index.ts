@@ -19,7 +19,7 @@ class Login{
         if(o == false) return false
         session.changeLoginData(sessionKey,{userID:o.id})
         console.log('[last_login]',o.last_login)
-        const oo = userDB.updateLastLogin(mustInt(o.id), new Date())
+        const oo = userDB.edit(mustInt(o.id), {last_login:new Date()})
         return true
 
         // if (email=='admin@ew' && pw=='U0d_NhPd1GRb14W3HAdFEPq6FTdCIRMntCQiYTLK4E_zKjKf4Lf2d1OlgRNvV09iF0qVh0REMCwMPTtU5cR9YQ'){
@@ -46,6 +46,16 @@ class Login{
         // TODO: 알림 메일 전송했다고 똑같이 안내하기. 가입되었다는 사실 숨기기. 일단은 로그인 페이지로 이동시키기.
         
         return true
+    }
+
+    async delete(userId:number){
+        // TODO 회원 탈퇴 기능 만들기
+        userDB.delete(userId)
+
+    }
+
+    async setTimezone(userId:number){
+
     }
 }
 

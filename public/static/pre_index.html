@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="s/main.css">
+    <link type="text/css" rel="stylesheet" href="s/myconfirm.css">
+    <link type="text/css" rel="stylesheet" href="s/mycontext.css">
+    <link rel="icon" type="image/png" href="i/baseline_event_black_24dp.png">
+    <script src="s/app.js"></script>
+    <script src="s/mycontext.js"></script>
+    <script src="s/myconfirm.js"></script>
+    <title>계획</title>
+</head>
+<body>
+    <header>
+        <button id="btn_addtask">add task</button>
+        <button id="btn_drow">drow</button>
+    </header>
+    <main>
+        <div id="mytable_header">
+            <div>/</div>
+            <div id="mytable_task"></div>
+        </div>
+        <div id="mytable_body">
+            <div id="mytable_side"></div>
+            <div id="mytalbe_data"></div>
+        </div>
+
+        <div id="myconfirm_wrap"></div>
+        <div id="mycontextmenu_wrap"></div>
+    </main>
+    <aside>
+
+    </aside>
+    <footer>
+
+    </footer>
+
+    <script>
+        const myconfirm = new myConfirm(document.getElementById('myconfirm_wrap'));
+        const mycontext = new myContext(document.getElementById('mycontextmenu_wrap'));
+        const app = new App();
+    </script>
+</body>
+</html>

@@ -223,3 +223,12 @@ tsc; node built/app
     - process는 pw 기반을 바탕으로 한 무언가로 하기
     
 
+## QOS
+- 같은 ip, user agent에서 같은 페이지 초당 5회 이상
+    - 1분 차단
+- 같은 ip 초당 30회 이상
+    - ip 1시간 차단
+- admin으로 들어와서 해제
+- abstract class block(until:date)
+- class blockedIP(ip:IP)
+- class blockedAgent(agent:string)

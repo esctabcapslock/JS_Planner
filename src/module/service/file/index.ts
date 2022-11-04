@@ -2,6 +2,8 @@ import {createHash} from 'crypto';
 const SHA256 = (txt:string)=> createHash('sha256').update(txt).digest('base64url');
 import {writeFileSync, readFileSync, existsSync, statSync, mkdirSync} from "fs";
 import { thisProgramPath } from '../../const';
+import fiieDB from '../../db/file';
+import FileData from '../../db/file/dto';
 
 class UploadFile{
     constructor(){
@@ -14,7 +16,7 @@ class UploadFile{
         return SHA256(`${Math.random()}+${new Date()}`)
     }
 
-    async push_file(fileData:Buffer, userID:number, filename:string=''):Promise<string>{
+    async push_file(fileData:Buffer, userID:number, filename:string=''):Promise<number>{
         
         // throw('구현 안됨');
         // 파일 이름 생성
@@ -23,10 +25,12 @@ class UploadFile{
         // TODO S2 업로드 코드 짜야함.
         const saveName = this.createFileName()
 
+        const fileId = fiieDB.add(new FileData(null, userID, saveName, fileData.length, filename))
+
         !existsSync(thisProgramPath+'\\file\\') && mkdirSync(thisProgramPath+'\\file\\') // file 폴더 없으면 생성
         writeFileSync(thisProgramPath+'\\file\\'+saveName, fileData)
 
-        return saveName
+        return fileId
     }
 
     get_file(userID:number, filename:string):null|Buffer{
