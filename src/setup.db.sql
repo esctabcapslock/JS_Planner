@@ -63,7 +63,7 @@ CREATE TABLE task(
 CREATE TABLE process(
     id SERIAL PRIMARY KEY,
     user_id integer references users NOT NULL,
-    -- task_id integer references task NOT NULL,
+    task_id integer references task NOT NULL,
     -- name VARCHAR(128) NOT NULL,
     alert_time timestamp  DEFAULT NULL,
     alert_name VARCHAR(128) DEFAULT NULL,
