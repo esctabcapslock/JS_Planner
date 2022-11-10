@@ -5,7 +5,8 @@
   "main": "app.ts",
   "scripts": {
     "start": "ts-node src/app",
-    "test": "ts-node src/app -dev"
+    "dev": "ts-node src/app -dev",
+    "test": "ts-node test"
   },
   "author": "esctabcapslock",
   "license": "ISC",

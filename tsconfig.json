@@ -1,7 +1,7 @@
 {
     
     "compilerOptions": {
-        "lib": ["es2015"],
+        "lib": ["es2015", "ES5"],
         // "outFile": "built/tsc.js",
         "module": "CommonJS",
         "moduleResolution":"Node",

@@ -1,18 +1,22 @@
 export const mustInt: (x:any)=>number = x=>{
+    x = Number(x)
     if(!Number.isInteger(x)) throw(`[mustInt] ${x}는 정수가 아님`)
     return x
 }
 export const mustPosInt: (x:any)=>number = x=>{
+    x = Number(x)
     if(!Number.isInteger(x)) throw(`[mustPosInt] ${x}는 양의 정수가 아님`)
     if(mustInt(x)<=0)  throw(`[mustPosInt] ${x}는 양의 정수가 아님`)
     return x
 }
 export const mustNatNum: (x:any)=>number = x=>{
+    x = Number(x)
     if(!Number.isInteger(x)) throw(`[mustNatNum] ${x}는 자연수가 아님`)
     if(x<0)  throw(`[mustNatNum] ${x}는 자연수가 아님`)
     return x
 }
 export const mustNegInt: (x:any)=>number = x=>{
+    x = Number(x)
     if(!Number.isInteger(x)) throw(`[mustNegInt] ${x}는 음의 정수가 아님`)
     if(x>=0)  throw(`[mustNegInt] ${x}는 음의 정수가 아님`)
     return x
@@ -69,23 +73,27 @@ export const mustIntArr: (x:any)=>string[] = x=>{
 
 export const mustIntN: (x:any)=>number|null = x=>{
     if(x===undefined || x===null) return null
+    x = Number(x)
     if(!Number.isInteger(x)) throw(`[mustInt] ${x}는 정수가 아님`)
     return x
 }
 export const mustPosIntN: (x:any)=>number|null = x=>{
     if(x===undefined || x===null) return null
+    x = Number(x)
     if(!Number.isInteger(x)) throw(`[mustPosInt] ${x}는 양의 정수가 아님`)
     if(mustInt(x)<=0)  throw(`[mustPosInt] ${x}는 양의 정수가 아님`)
     return x
 }
 export const mustNatNumN: (x:any)=>number|null = x=>{
     if(x===undefined || x===null) return null
+    x = Number(x)
     if(!Number.isInteger(x)) throw(`[mustNatNum] ${x}는 자연수가 아님`)
     if(x<0)  throw(`[mustNatNum] ${x}는 자연수가 아님`)
     return x
 }
 export const mustNegIntN: (x:any)=>number|null = x=>{
     if(x===undefined || x===null) return null
+    x = Number(x)
     if(!Number.isInteger(x)) throw(`[mustNegInt] ${x}는 음의 정수가 아님`)
     if(x>=0)  throw(`[mustNegInt] ${x}는 음의 정수가 아님`)
     return x

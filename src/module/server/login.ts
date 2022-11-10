@@ -29,7 +29,7 @@ loginServer.p('signup').get((req,res,sessionKey)=>{
 $auth.p('login').post(async (req,res,sessionKey)=>{
     console.log('login-post')
     const {email, pw} = querystring.parse(req.body('string'))
-    console.log('login - post')
+    console.log('login - post', {email, pw})
     if(await login.login(email.toString(),pw.toString(), sessionKey)){ // 로그인 성공
         console.log('로그인 관련')
         res.statusCode = 302

@@ -2,7 +2,10 @@
 import { Server } from "httptree"
 // import {taskdb, imagedb, Task, interfaceOfTask}  from "../db"
 import { thisProgramPath } from "../const"
-import { uploadFile } from "../service/file"
+import { ReqError } from "../error"
+import { mustInt } from "../mustBe"
+import fileSv from "../service/file"
+import taskSv from "../service/task"
 
 type serviceServerOption = {userID:number}
 
@@ -29,6 +32,22 @@ serviceServer.p('signin').get(mainPageRedirect(''))
 const $a = serviceServer.p('a');
 
 
+const $task = $a.p('task');
+const $taskId = $task.p(/^\d+$/)
+$task.get(async (req,res,obj)=>res.send(await taskSv.get(obj.userID)))
+$taskId.get(async (req,res,obj)=>res.send(await taskSv.getById(obj.userID, mustInt(req.lastSubPath))))
+$task.put(async (req,res,obj)=>{res.send(await taskSv.add(obj.userID, req.body('json').body))})
+$taskId.patch(async (req,res,obj)=> {await taskSv.edit  (obj.userID, mustInt(req.lastSubPath), req.body('json'));res.send('ok')})
+$taskId.delete(async (req,res,obj)=>{await taskSv.delete(obj.userID, mustInt(req.lastSubPath), req.body('json'));res.send('ok')})
+$task.catch(async (req,res,obj,err)=>{
+    if(err instanceof ReqError){
+        console.log('dds')
+        res.statusCode = err.statusCode
+        res.send(err.pubMsg)
+    }
+    else throw(err)
+})
+
 /*
 // sqlite용 코드
 const $task = $a.p('task');
@@ -54,15 +73,15 @@ $memo.p(/\d+/).delete(async (req,res,obj)=>{taskdb.del_memo(Number(req.lastSubPa
 
 const $file = $a.p('file');
 $file.post(async (req,res,obj)=>{
-    res.send({fileId: await uploadFile.push_file(req.body('raw'), obj.userID)})
+    res.send({fileId: await fileSv.push_file(req.body('raw'), obj.userID)})
 })
 
 $file.p('*').post(async (req,res,obj)=>{
-    res.send({fileId: await uploadFile.push_file(req.body('raw'), obj.userID, req.lastSubPath)})
+    res.send({fileId: await fileSv.push_file(req.body('raw'), obj.userID, req.lastSubPath)})
 })
 
 $file.p('*').get(async (req,res,obj)=>{
-    const data =  uploadFile.get_file(obj.userID, req.lastSubPath)
+    const data =  fileSv.get_file(obj.userID, req.lastSubPath)
     if(data==null) res.throw(403,'존재하지 않는 파일', 'this file not exists') 
     else res.send(data)
 })

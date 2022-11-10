@@ -1,5 +1,4 @@
 import * as HTTP from "http"
-import * as fs from "fs"
 
 export function _404(res: HTTP.ServerResponse, url: string | undefined, err: string|object) {
     if (err) console.error('_404 fn err', url, err)

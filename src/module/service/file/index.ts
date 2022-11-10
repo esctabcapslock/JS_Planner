@@ -42,4 +42,4 @@ class UploadFile{
     }
 }
 
-export const uploadFile = new UploadFile()
+export default new UploadFile()
